@@ -28,7 +28,7 @@ You will see the different command-line programs. To get a specific option for a
 # java -jar attributedb-cli-0.0.1.jar upload
 ```
  
-## Database options
+### Database options
 
 To select the correct host, database, port, username, and password there are always the same command line options.
 ```
