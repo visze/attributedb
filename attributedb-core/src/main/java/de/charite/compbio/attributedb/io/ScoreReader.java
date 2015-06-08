@@ -36,8 +36,8 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 	protected void setNextReader() throws IOException {
 		if (fileIterator.hasNext()) {
 			Reader reader = getReader();
-			br = new BufferedReader(reader);
-			linesIterator = br.lines().iterator();
+			setBr(new BufferedReader(reader));
+			linesIterator = getBr().lines().iterator();
 		} else {
 			fileIterator = null;
 		}
@@ -111,6 +111,19 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 
 	protected Iterator<String> getLinesIterator() {
 		return linesIterator;
+	}
+	
+	protected void setBr(BufferedReader br) {
+		this.br = br;
+	}
+	
+	protected BufferedReader getBr() {
+		return br;
+	}
+	
+	@Override
+	public void remove() {
+		throw new UnsupportedOperationException();
 	}
 
 }

@@ -36,8 +36,7 @@ public class UploadLoaderMain {
 			PreparedStatement ps = con.prepareStatement(AttributeType.INSERT_STATEMENT);
 			ps.setString(1, attributeType.getName());
 			ps.setString(2, attributeType.getDescription());
-			ps.executeQuery();
-			ResultSet rs = ps.getResultSet();
+			ResultSet rs = ps.executeQuery();
 			rs.next();
 			attributeType.setId(rs.getInt(1));
 
