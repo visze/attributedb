@@ -115,7 +115,7 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 	
 	@Override
 	public void remove() {
-		Iterator.super.remove();
+		throw new UnsupportedOperationException();
 	}
 
 }
