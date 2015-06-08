@@ -8,7 +8,7 @@ Simple Java program to upload a score related to a position in the human genome.
 
 Until now, alleles are not supported. 
 
-AttributeDB is compatible with Java 7 and higher.
+AttributeDB is compatible with Java 8.
 
 ## CLI-options
 
