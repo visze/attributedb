@@ -72,5 +72,5 @@ public class WigFileReader extends ScoreReader {
 		return null;
 
 	}
-
+	
 }

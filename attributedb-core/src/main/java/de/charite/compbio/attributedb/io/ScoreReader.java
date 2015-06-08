@@ -112,5 +112,10 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 	protected Iterator<String> getLinesIterator() {
 		return linesIterator;
 	}
+	
+	@Override
+	public void remove() {
+		Iterator.super.remove();
+	}
 
 }
