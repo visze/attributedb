@@ -45,8 +45,14 @@ public class UploadLoaderMain {
 					.setAttributeType(attributeType).setFiles(UploadSettings.FILES).create();
 
 			ps = con.prepareStatement(Attribute.INSERT_STATEMENT);
+			Attribute score = null;
+			Attribute scoreBefore = null;
 			while (reader.hasNext()) {
-				Attribute score = reader.next();
+				scoreBefore = score;
+				score = reader.next();
+				
+				if (scoreBefore != null && scoreBefore.getChr() != score.getChr())
+					ps.executeBatch();
 
 				score.setPrepareStatement(ps);
 				ps.addBatch();
