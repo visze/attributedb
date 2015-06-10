@@ -19,7 +19,7 @@ import de.charite.compbio.attributedb.model.score.AttributeType;
  * @author <a href="mailto:max.schubach@charite.de">Max Schubach</a>
  *
  */
-public class UploadLoaderMain {
+public class UploadMain {
 
 	private static AttributeType attributeType;
 
@@ -65,6 +65,7 @@ public class UploadLoaderMain {
 		} catch (Exception e) {
 			e.printStackTrace();
 			con.rollback();
+			con.close();
 			System.exit(1);
 		}
 		con.close();

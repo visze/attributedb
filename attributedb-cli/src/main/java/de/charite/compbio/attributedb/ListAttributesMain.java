@@ -36,6 +36,7 @@ public class ListAttributesMain {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			con.close();
 		}
 		con.close();
 		System.exit(0);
