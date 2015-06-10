@@ -36,7 +36,6 @@ public class DownloadMain {
 		types = new ArrayList<AttributeType>();
 
 		Connection con = DatabaseConnection.getConnection();
-		int i = 0;
 		try {
 			// AttributeTypes. get ID
 

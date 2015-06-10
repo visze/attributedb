@@ -37,7 +37,7 @@ public class WigFileReader extends ScoreReader {
 			return true;
 		}
 
-		if (getLinesIterator() != null && getLinesIterator().hasNext()) {
+		if (getFileIterator() != null && getFileIterator().hasNext()) {
 			try {
 				setNextReader();
 			} catch (IOException e) {

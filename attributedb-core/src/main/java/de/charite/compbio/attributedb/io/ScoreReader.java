@@ -125,5 +125,9 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}
+	
+	protected Iterator<String> getFileIterator() {
+		return fileIterator;
+	}
 
 }
