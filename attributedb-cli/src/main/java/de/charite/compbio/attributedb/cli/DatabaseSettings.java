@@ -3,6 +3,7 @@ package de.charite.compbio.attributedb.cli;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import de.charite.compbio.attributedb.db.DatabaseConnection;
 
@@ -42,7 +43,7 @@ public class DatabaseSettings {
 
 	}
 
-	public static void parseOptions(CommandLine cmd) {
+	public static void parseOptions(CommandLine cmd) throws ParseException {
 
 		DatabaseConnection.setHOST(cmd.getOptionValue("H"));
 		DatabaseConnection.setDATABASE(cmd.getOptionValue("D"));

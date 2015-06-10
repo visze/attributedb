@@ -19,7 +19,7 @@ import de.charite.compbio.attributedb.model.score.AttributeType;
  * @author <a href="mailto:max.schubach@charite.de">Max Schubach</a>
  *
  */
-public class UploadLoaderMain {
+public class UploadMain {
 
 	private static AttributeType attributeType;
 
@@ -45,23 +45,18 @@ public class UploadLoaderMain {
 
 			ps = con.prepareStatement(Attribute.INSERT_STATEMENT);
 			Attribute score = null;
-			Attribute scoreBefore = null;
 			while (reader.hasNext()) {
-				scoreBefore = score;
 				score = reader.next();
-				
-				if (scoreBefore != null && scoreBefore.getChr() != score.getChr())
-					ps.executeBatch();
 
 				score.setPrepareStatement(ps);
 				ps.addBatch();
 
 				i++;
-				// if (i % 1000000 == 0) {
-				// ps.executeLargeBatch();
-				// System.out.println(i + " positions uploaded!");
-				// ps = con.prepareStatement(Attribute.INSERT_STATEMENT);
-				// }
+				if (i % 1000000 == 0) {
+					ps.executeBatch();
+					System.out.println(i + " positions uploaded!");
+				}
+
 			}
 			ps.executeBatch();
 			con.commit();
@@ -70,6 +65,7 @@ public class UploadLoaderMain {
 		} catch (Exception e) {
 			e.printStackTrace();
 			con.rollback();
+			con.close();
 			System.exit(1);
 		}
 		con.close();

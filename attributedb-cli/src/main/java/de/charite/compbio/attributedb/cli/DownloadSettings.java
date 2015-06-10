@@ -12,27 +12,22 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import de.charite.compbio.attributedb.io.FileType;
 import de.charite.compbio.attributedb.model.score.AttributeType;
 
 /**
  * @author <a href="mailto:max.schubach@charite.de">Max Schubach</a>
  *
  */
-public class UploadSettings extends DatabaseSettings {
+public class DownloadSettings extends DatabaseSettings {
 
-	public static List<String> FILES;
-	public static FileType FILE_TYPE;
-	public static AttributeType ATTRIBUTE_TYPE;
+	public static List<String> VCF_FILES;
+	public static List<String> POSITIONS;
+	public static List<AttributeType> ATTRIBUTE_TYPES;
 
 	public static void parseArgs(String[] args) throws ParseException {
 
 		// create Options object
 		Options options = new Options();
-
-		OptionBuilder.withLongOpt("help");
-		OptionBuilder.withDescription("Print this help message");
-		options.addOption(OptionBuilder.create("h"));
 
 		setOptions(options);
 
@@ -49,7 +44,7 @@ public class UploadSettings extends DatabaseSettings {
 			System.err.print(e.getMessage());
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.setWidth(120);
-			formatter.printHelp("AttributeDB - Upload settings", options);
+			formatter.printHelp("AttributeDB - Download settings", options);
 			System.exit(0);
 		}
 
@@ -62,46 +57,47 @@ public class UploadSettings extends DatabaseSettings {
 
 		OptionBuilder.withLongOpt("file");
 		OptionBuilder.withDescription("file or files to upload");
-		OptionBuilder.isRequired();
 		OptionBuilder.hasArgs();
 		options.addOption(OptionBuilder.create("f"));
 
-		OptionBuilder.withLongOpt("type");
-		OptionBuilder.withDescription("file type. default tsv (chr\\tpos\\tscore)");
-		OptionBuilder.hasArg();
-		options.addOption(OptionBuilder.create("t"));
-
 		OptionBuilder.withLongOpt("name");
-		OptionBuilder.withDescription("Name of the score. Must be unique in the database");
+		OptionBuilder.withDescription("Name(s) of the score(s).");
 		OptionBuilder.isRequired();
-		OptionBuilder.hasArg();
+		OptionBuilder.hasArgs();
 		options.addOption(OptionBuilder.create("n"));
 
-		OptionBuilder.withLongOpt("description");
-		OptionBuilder.hasArg();
-		OptionBuilder.isRequired();
-		OptionBuilder.withDescription("A detailed description of the database.");
-		options.addOption(OptionBuilder.create("d"));
+		OptionBuilder.withLongOpt("position");
+		OptionBuilder.hasArgs();
+		OptionBuilder.withDescription("Position to get score(s). Format: chr1:12123123");
+		options.addOption(OptionBuilder.create("p"));
 
 	}
 
-	public static void parseOptions(CommandLine cmd)  throws ParseException  {
-		
+	public static void parseOptions(CommandLine cmd) throws ParseException  {
 		HelpSettings.parseOptions(cmd);
 		DatabaseSettings.parseOptions(cmd);
-
-		FILES = new ArrayList<String>();
-		for (String option : cmd.getOptionValues("f")) {
-			FILES.add(option);
-		}
-		ATTRIBUTE_TYPE = new AttributeType(cmd.getOptionValue("n"),cmd.getOptionValue("d"));
+		ATTRIBUTE_TYPES = new ArrayList<AttributeType>();
 		
-		if (cmd.hasOption("t"))
-			FILE_TYPE = FileType.fromString(cmd.getOptionValue("t"));
-		else
-			FILE_TYPE = FileType.TSV;
+		if (cmd.hasOption("f") && cmd.hasOption("p"))
+			throw new ParseException("You cannot combine option \"position\" and \"file\"!");
 		
-
+		VCF_FILES = new ArrayList<String>();
+		if (cmd.hasOption("f"))
+			for (String file : cmd.getOptionValues("f")) {
+				VCF_FILES.add(file);
+			}
+		
+		POSITIONS = new ArrayList<String>();
+		if (cmd.hasOption("p"))
+			for (String pos : cmd.getOptionValues("p")) {
+				POSITIONS.add(pos);
+			}
+		
+		ATTRIBUTE_TYPES = new ArrayList<AttributeType>();
+		if (cmd.hasOption("n"))
+			for (String name : cmd.getOptionValues("n")) {
+				ATTRIBUTE_TYPES.add(new AttributeType(name, null));
+			}
 	}
 
 }

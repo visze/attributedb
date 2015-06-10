@@ -1,6 +1,7 @@
 package de.charite.compbio.attributedb.model.score;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -11,6 +12,8 @@ public class Attribute extends Position {
 
 	public static final String INSERT_STATEMENT = "INSERT INTO attribute "
 			+ "(position, attribute_type_id, value) VALUES (?,?,?)";
+	public static final String SELECT_POSITION_TYPEID_STATEMENT = "SELECT position, attribute_type_id, value "
+			+ "FROM attribute WHERE position = ? AND attribute_type_id = ?";
 	private AttributeType type;
 	private double value;
 
@@ -32,6 +35,11 @@ public class Attribute extends Position {
 
 	public double getValue() {
 		return value;
+	}
+
+	public void set(ResultSet rs) throws SQLException {
+		this.value = rs.getDouble("value");
+		
 	}
 
 }

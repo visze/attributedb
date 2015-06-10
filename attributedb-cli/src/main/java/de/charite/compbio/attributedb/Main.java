@@ -10,9 +10,8 @@ import org.apache.commons.cli.ParseException;
  *
  */
 public class Main {
-	
+
 	public static void main(String[] args) throws ParseException, SQLException, IOException {
-		
 
 		if (args.length == 0) {
 			// No arguments, print top level help and exit.
@@ -24,9 +23,11 @@ public class Main {
 			newArgs[i] = args[i + 1];
 		}
 		if (args[0].equals("upload"))
-			UploadLoaderMain.main(newArgs);
+			UploadMain.main(newArgs);
 		else if (args[0].equals("list-attributes"))
 			ListAttributesMain.main(newArgs);
+		else if (args[0].equals("download"))
+			DownloadMain.main(newArgs);
 		else {
 			printTopLevelHelp();
 			System.err.println("unrecognized command " + args[0]);
@@ -45,9 +46,8 @@ public class Main {
 		System.err.println("Usage: java -jar attributedb.jar <command> [options]");
 		System.err.println("");
 		System.err.println("Command: upload                     Upload a score into the Database");
+		System.err.println("         download		            Download scores from the database or annotate VCF-files.");
 		System.err.println("         list-attributes            List all available scores in the database");
 	}
-		
-
 
 }

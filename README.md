@@ -16,6 +16,7 @@ There are two different workflows implemented, if you run the command line versi
 
 1. `list-attributes` - Overview of the different attribute scores stored in the database. 
 2. `upload` - Upload a new score into the database.
+2. `download` - Download scores for positions or annotate VCF file. 
 
 ## Quickstart
 
@@ -67,3 +68,13 @@ Until now, two file formats are supported. They can be defined with the command 
 
 1. [WIG-Format](http://genome.ucsc.edu/goldenpath/help/wiggle.html) - use `wig` as file type
 2. TSV-Format - use `tsv` as file type. TAB separated file with chromosome, position, and score. No header is allowed!
+
+### download
+
+Get scores from the database. You can simply add positions via the option `-p` (format `chr:pos`) or name a VCF file via option `-f`. Position from `-p` or all positions included in the VCF file are annotated with all avaiable scores. You can reduce the score types by naming only the needed scores with option `-n`.
+
+To see the help run 
+```
+# java -jar attributedb-cli-0.0.1.jar download
+```
+The results will be printed to the standard output using a TSV format (`CHR\tPOSITION\tScore1\tScore2...`).
