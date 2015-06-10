@@ -77,4 +77,4 @@ To see the help run
 ```
 # java -jar attributedb-cli-0.0.1.jar download
 ```
-The results will be printed to the standard output in a TSV (`CHR\tPOSITION\tScore1\tScore2...`).
+The results will be printed to the standard output using a TSV format (`CHR\tPOSITION\tScore1\tScore2...`).
