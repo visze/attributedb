@@ -3,6 +3,7 @@ package de.charite.compbio.attributedb.io;
 import java.io.IOException;
 import java.util.List;
 
+import de.charite.compbio.attributedb.io.gerp.RSScoreReader;
 import de.charite.compbio.attributedb.model.score.AttributeType;
 
 /**
@@ -40,7 +41,8 @@ public class ScoreReaderBuilder {
 			return new WigFileReader(files, attributeType);
 		case TSV:
 			return new TSVScoreReader(files, attributeType);
-
+		case GERP_RS_SCORE:
+			return new RSScoreReader(files, attributeType);
 		default:
 			return new TSVScoreReader(files, attributeType);
 		}

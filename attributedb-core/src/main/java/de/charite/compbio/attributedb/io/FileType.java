@@ -6,7 +6,7 @@ package de.charite.compbio.attributedb.io;
  */
 public enum FileType {
 
-	TSV("tsv"), WIG("wig");
+	TSV("tsv"), WIG("wig"), GERP_RS_SCORE("gerprs");
 
 	private String name;
 

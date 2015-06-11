@@ -1,10 +1,11 @@
-package de.charite.compbio.attributedb.io;
+package de.charite.compbio.attributedb.io.gerp;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.charite.compbio.attributedb.io.ScoreReader;
 import de.charite.compbio.attributedb.model.score.Attribute;
 import de.charite.compbio.attributedb.model.score.AttributeType;
 import de.charite.compbio.attributedb.model.score.ChromosomeType;
@@ -13,15 +14,15 @@ import de.charite.compbio.attributedb.model.score.ChromosomeType;
  * @author <a href="mailto:max.schubach@charite.de">Max Schubach</a>
  *
  */
-public class WigFileReader extends ScoreReader {
+public abstract class GERPElementsFileReader extends ScoreReader {
 
-	public WigFileReader(List<String> files, AttributeType type) throws IOException {
+	public GERPElementsFileReader(List<String> files, AttributeType type) throws IOException {
 		super(files, type);
 	}
 
-	private int position;
 	private String chr;
-	private int end;
+	private int position = 0;
+	private int splitPosition;
 
 	@Override
 	public boolean hasNext() {
@@ -51,12 +52,10 @@ public class WigFileReader extends ScoreReader {
 	}
 
 	private void checkHeader() {
-		Pattern p = Pattern.compile("^fixedStep\\schrom=(chr([0-9]+|X|Y|M))\\sstart=(\\d+)\\sstep=(\\d+)$");
+		Pattern p = Pattern.compile("^hg19_(chr([0-9]+|X|Y|M))_elems.*");
 		Matcher m = p.matcher(getNextLine());
 		if (m.matches()) {
 			chr = m.group(2);
-			position = Integer.parseInt(m.group(3));
-			end = position + Integer.parseInt(m.group(4));
 			setNextLine(null);
 		}
 	}
@@ -64,17 +63,25 @@ public class WigFileReader extends ScoreReader {
 	@Override
 	public Attribute next() {
 		if (hasNext()) {
-			if (end > position) {
-				Attribute attribute = new Attribute(ChromosomeType.fromString(chr), position, getType(),
-						Double.parseDouble(getNextLine()));
+			String[] split = getNextLine().split("\t");
+			int start = Integer.parseInt(split[0]);
+			int end = Integer.parseInt(split[1]);
+			double value = Double.parseDouble(split[splitPosition]);
+			if (end >= start + position) {
+				Attribute attribute = new Attribute(ChromosomeType.fromString(chr), start + position, getType(), value);
 				this.position++;
 				return attribute;
 			} else {
 				setNextLine(null);
+				this.position = 0;
 			}
 		}
 		return null;
 
 	}
-
+	
+	protected void setSplitPosition(int splitPosition) {
+		this.splitPosition = splitPosition;
+	}
+	
 }

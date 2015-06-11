@@ -12,6 +12,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.compressors.CompressorException;
+import org.apache.commons.compress.compressors.CompressorInputStream;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
+
 import de.charite.compbio.attributedb.model.score.Attribute;
 import de.charite.compbio.attributedb.model.score.AttributeType;
 
@@ -46,10 +53,21 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 	private Reader getReader() throws IOException {
 		String nextFile = fileIterator.next();
 		Reader reader;
+		InputStream fin = new FileInputStream(nextFile);
+		BufferedInputStream in = new BufferedInputStream(fin);
+
 		if (isGZipped(new FileInputStream(nextFile))) {
-			reader = new InputStreamReader(new GZIPInputStream(new FileInputStream(nextFile)), Charset.defaultCharset());
+			try {
+				CompressorInputStream gzIn = new CompressorStreamFactory().createCompressorInputStream(in);
+//				ArchiveInputStream input = new ArchiveStreamFactory().createArchiveInputStream(gzIn);
+				reader = new InputStreamReader(gzIn, Charset.defaultCharset());
+			} catch (CompressorException e) {
+				e.printStackTrace();
+				GZIPInputStream gzIn = new GZIPInputStream(in);
+				reader = new InputStreamReader(gzIn, Charset.defaultCharset());
+			}
 		} else {
-			reader = new InputStreamReader(new FileInputStream(nextFile), Charset.defaultCharset());
+			reader = new InputStreamReader(in, Charset.defaultCharset());
 		}
 		return reader;
 	}
@@ -112,20 +130,20 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 	protected Iterator<String> getLinesIterator() {
 		return linesIterator;
 	}
-	
+
 	protected void setBr(BufferedReader br) {
 		this.br = br;
 	}
-	
+
 	protected BufferedReader getBr() {
 		return br;
 	}
-	
+
 	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	protected Iterator<String> getFileIterator() {
 		return fileIterator;
 	}

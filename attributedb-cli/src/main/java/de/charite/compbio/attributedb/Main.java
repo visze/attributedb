@@ -24,6 +24,8 @@ public class Main {
 		}
 		if (args[0].equals("upload"))
 			UploadMain.main(newArgs);
+		else if (args[0].equals("upload-max"))
+			UploadMaxMain.main(newArgs);
 		else if (args[0].equals("list-attributes"))
 			ListAttributesMain.main(newArgs);
 		else if (args[0].equals("download"))
@@ -46,6 +48,7 @@ public class Main {
 		System.err.println("Usage: java -jar attributedb.jar <command> [options]");
 		System.err.println("");
 		System.err.println("Command: upload                     Upload a score into the Database");
+		System.err.println("         upload-max		            Upload the maximum score between different files.");
 		System.err.println("         download		            Download scores from the database or annotate VCF-files.");
 		System.err.println("         list-attributes            List all available scores in the database");
 	}
