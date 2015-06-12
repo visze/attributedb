@@ -11,11 +11,26 @@ import de.charite.compbio.attributedb.model.score.AttributeType;
 import de.charite.compbio.attributedb.model.score.ChromosomeType;
 
 /**
+ * Abstract class to read a GERP++ element file. There are two scores avaiable in this file. First, the GERP++ RS score
+ * and the GERP++ p-value
+ * 
+ * @see "{@link RSScoreReader}"
+ * 
  * @author <a href="mailto:max.schubach@charite.de">Max Schubach</a>
  *
  */
 public abstract class GERPElementsFileReader extends ScoreReader {
 
+	/**
+	 * 
+	 * Default constructor. Sets the super constructor.
+	 * 
+	 * @param files
+	 *            {@link List} with paths to the files (but only one element-file on the GERP website)
+	 * @param type
+	 *            The {@link AttributeType} of the score you upload (something like gerprsscore or gerppvalue).
+	 * @throws IOException
+	 */
 	public GERPElementsFileReader(List<String> files, AttributeType type) throws IOException {
 		super(files, type);
 	}
@@ -55,7 +70,7 @@ public abstract class GERPElementsFileReader extends ScoreReader {
 		Pattern p = Pattern.compile("^hg19_(chr([0-9]+|X|Y|M))_elems.*");
 		Matcher m = p.matcher(getNextLine());
 		if (m.matches()) {
-			chr = m.group(2);
+			this.chr = m.group(2);
 			setNextLine(null);
 		}
 	}
@@ -66,9 +81,9 @@ public abstract class GERPElementsFileReader extends ScoreReader {
 			String[] split = getNextLine().split("\t");
 			int start = Integer.parseInt(split[0]);
 			int end = Integer.parseInt(split[1]);
-			double value = Double.parseDouble(split[splitPosition]);
-			if (end >= start + position) {
-				Attribute attribute = new Attribute(ChromosomeType.fromString(chr), start + position, getType(), value);
+			double value = Double.parseDouble(split[this.splitPosition]);
+			if (end >= start + this.position) {
+				Attribute attribute = new Attribute(ChromosomeType.fromString(this.chr), start + this.position, getType(), value);
 				this.position++;
 				return attribute;
 			} else {
@@ -79,9 +94,9 @@ public abstract class GERPElementsFileReader extends ScoreReader {
 		return null;
 
 	}
-	
+
 	protected void setSplitPosition(int splitPosition) {
 		this.splitPosition = splitPosition;
 	}
-	
+
 }

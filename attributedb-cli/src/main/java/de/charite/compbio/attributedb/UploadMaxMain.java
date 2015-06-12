@@ -1,6 +1,5 @@
 package de.charite.compbio.attributedb;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -25,7 +24,7 @@ public class UploadMaxMain extends UploadMain {
 	private static List<ScoreReader> readers;
 	private static List<Attribute> scores;
 
-	public static void main(String[] args) throws SQLException, ParseException, IOException {
+	public static void main(String[] args) throws SQLException, ParseException {
 		UploadSettings.parseArgs(args);
 
 		Connection con = DatabaseConnection.getConnection();
@@ -35,8 +34,8 @@ public class UploadMaxMain extends UploadMain {
 			// AttributeType. get ID
 			setAttributeType(con);
 
-			readers = new ArrayList<ScoreReader>();
-			scores = new ArrayList<Attribute>();
+			readers = new ArrayList<>();
+			scores = new ArrayList<>();
 			for (String file : UploadSettings.FILES) {
 				ScoreReader reader = new ScoreReaderBuilder().setFileType(UploadSettings.FILE_TYPE)
 						.setAttributeType(attributeType).setFiles(Arrays.<String> asList(file)).create();
@@ -52,7 +51,7 @@ public class UploadMaxMain extends UploadMain {
 
 				// get max
 				Attribute maxScore = null;
-				List<Integer> index = new ArrayList<Integer>();
+				List<Integer> index = new ArrayList<>();
 				for (int j = 0; j < readers.size(); j++) {
 					if (readers.get(j).hasNext() && scores.get(j) == null)
 						scores.set(j, readers.get(j).next());
@@ -61,12 +60,12 @@ public class UploadMaxMain extends UploadMain {
 						continue;
 					if (maxScore == null) {
 						maxScore = theScore;
-						index = new ArrayList<Integer>();
+						index = new ArrayList<>();
 						index.add(j);
 					} else if (theScore.getChr() == maxScore.getChr()
 							&& theScore.getPosition() < maxScore.getPosition()) {
 						maxScore = theScore;
-						index = new ArrayList<Integer>();
+						index = new ArrayList<>();
 						index.add(j);
 					} else if (theScore.getChr() == maxScore.getChr()
 							&& theScore.getPosition() == maxScore.getPosition()) {

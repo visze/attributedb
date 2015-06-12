@@ -18,11 +18,11 @@ public enum ChromosomeType {
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public String getShortName() {
-		return shortName;
+		return this.shortName;
 	}
 
 	public static ChromosomeType fromString(String text) {

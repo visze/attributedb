@@ -36,15 +36,15 @@ public class ScoreReaderBuilder {
 
 	public ScoreReader create() throws IOException {
 
-		switch (fileType) {
+		switch (this.fileType) {
 		case WIG:
-			return new WigFileReader(files, attributeType);
+			return new WigFileReader(this.files, this.attributeType);
 		case TSV:
-			return new TSVScoreReader(files, attributeType);
+			return new TSVScoreReader(this.files, this.attributeType);
 		case GERP_RS_SCORE:
-			return new RSScoreReader(files, attributeType);
+			return new RSScoreReader(this.files, this.attributeType);
 		default:
-			return new TSVScoreReader(files, attributeType);
+			return new TSVScoreReader(this.files, this.attributeType);
 		}
 	}
 

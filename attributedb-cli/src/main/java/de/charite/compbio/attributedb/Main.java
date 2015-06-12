@@ -6,11 +6,23 @@ import java.sql.SQLException;
 import org.apache.commons.cli.ParseException;
 
 /**
+ * The attributeDB command-line program. You can upload, download or list scores that are stored in a database.
+ * 
  * @author <a href="mailto:max.schubach@charite.de">Max Schubach</a>
  *
  */
 public class Main {
 
+	/**
+	 * Main method for the CLI program. Decides between the different commands (upload, upload-max, list-attributes,
+	 * download) and runs the sub-command. See README.md for more explanation.
+	 * 
+	 * @param args
+	 *            Command-line arguments
+	 * @throws ParseException
+	 * @throws SQLException
+	 * @throws IOException
+	 */
 	public static void main(String[] args) throws ParseException, SQLException, IOException {
 
 		if (args.length == 0) {

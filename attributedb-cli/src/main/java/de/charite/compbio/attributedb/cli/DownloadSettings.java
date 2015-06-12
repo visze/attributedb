@@ -24,7 +24,7 @@ public class DownloadSettings extends DatabaseSettings {
 	public static List<String> POSITIONS;
 	public static List<AttributeType> ATTRIBUTE_TYPES;
 
-	public static void parseArgs(String[] args) throws ParseException {
+	public static void parseArgs(String[] args) {
 
 		// create Options object
 		Options options = new Options();
@@ -76,24 +76,24 @@ public class DownloadSettings extends DatabaseSettings {
 	public static void parseOptions(CommandLine cmd) throws ParseException  {
 		HelpSettings.parseOptions(cmd);
 		DatabaseSettings.parseOptions(cmd);
-		ATTRIBUTE_TYPES = new ArrayList<AttributeType>();
+		ATTRIBUTE_TYPES = new ArrayList<>();
 		
 		if (cmd.hasOption("f") && cmd.hasOption("p"))
 			throw new ParseException("You cannot combine option \"position\" and \"file\"!");
 		
-		VCF_FILES = new ArrayList<String>();
+		VCF_FILES = new ArrayList<>();
 		if (cmd.hasOption("f"))
 			for (String file : cmd.getOptionValues("f")) {
 				VCF_FILES.add(file);
 			}
 		
-		POSITIONS = new ArrayList<String>();
+		POSITIONS = new ArrayList<>();
 		if (cmd.hasOption("p"))
 			for (String pos : cmd.getOptionValues("p")) {
 				POSITIONS.add(pos);
 			}
 		
-		ATTRIBUTE_TYPES = new ArrayList<AttributeType>();
+		ATTRIBUTE_TYPES = new ArrayList<>();
 		if (cmd.hasOption("n"))
 			for (String name : cmd.getOptionValues("n")) {
 				ATTRIBUTE_TYPES.add(new AttributeType(name, null));

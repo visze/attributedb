@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.apache.commons.cli.ParseException;
-
 import de.charite.compbio.attributedb.cli.ListAttributesSetting;
 import de.charite.compbio.attributedb.db.AttributeTypeListBuilder;
 import de.charite.compbio.attributedb.db.DatabaseConnection;
@@ -17,7 +15,7 @@ import de.charite.compbio.attributedb.model.score.AttributeType;
  */
 public class ListAttributesMain {
 
-	public static void main(String[] args) throws ParseException, SQLException {
+	public static void main(String[] args) throws SQLException {
 		ListAttributesSetting.parseArgs(args);
 
 		Connection con = DatabaseConnection.getConnection();

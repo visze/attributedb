@@ -26,7 +26,7 @@ public class UploadSettings extends DatabaseSettings {
 	public static AttributeType ATTRIBUTE_TYPE;
 	public static boolean UPLOAD_ZERO;
 
-	public static void parseArgs(String[] args) throws ParseException {
+	public static void parseArgs(String[] args) {
 
 		// create Options object
 		Options options = new Options();
@@ -92,7 +92,7 @@ public class UploadSettings extends DatabaseSettings {
 		HelpSettings.parseOptions(cmd);
 		DatabaseSettings.parseOptions(cmd);
 
-		FILES = new ArrayList<String>();
+		FILES = new ArrayList<>();
 		for (String option : cmd.getOptionValues("f")) {
 			FILES.add(option);
 		}

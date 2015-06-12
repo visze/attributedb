@@ -21,12 +21,12 @@ public class ScorePrinter {
 
 	public CSVPrinter getPrinter() throws IOException {
 		if (this.printer == null)
-			this.printer = new CSVPrinter(System.out, format);
-		return printer;
+			this.printer = new CSVPrinter(System.out, this.format);
+		return this.printer;
 	}
 
 	public void writeHeader(List<AttributeType> types) throws IOException {
-		List<String> header = new ArrayList<String>();
+		List<String> header = new ArrayList<>();
 		header.add("CHR");
 		header.add("POSITION");
 		for (AttributeType type : types) {
@@ -37,7 +37,7 @@ public class ScorePrinter {
 	}
 
 	public void writeScores(List<Attribute> scores) throws IOException {
-		List<Object> columns = new ArrayList<Object>();
+		List<Object> columns = new ArrayList<>();
 		boolean first = true;
 		for (Attribute score : scores) {
 			if (first) {

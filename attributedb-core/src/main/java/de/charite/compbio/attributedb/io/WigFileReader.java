@@ -54,9 +54,9 @@ public class WigFileReader extends ScoreReader {
 		Pattern p = Pattern.compile("^fixedStep\\schrom=(chr([0-9]+|X|Y|M))\\sstart=(\\d+)\\sstep=(\\d+)$");
 		Matcher m = p.matcher(getNextLine());
 		if (m.matches()) {
-			chr = m.group(2);
-			position = Integer.parseInt(m.group(3));
-			end = position + Integer.parseInt(m.group(4));
+			this.chr = m.group(2);
+			this.position = Integer.parseInt(m.group(3));
+			this.end = this.position + Integer.parseInt(m.group(4));
 			setNextLine(null);
 		}
 	}
@@ -64,8 +64,8 @@ public class WigFileReader extends ScoreReader {
 	@Override
 	public Attribute next() {
 		if (hasNext()) {
-			if (end > position) {
-				Attribute attribute = new Attribute(ChromosomeType.fromString(chr), position, getType(),
+			if (this.end > this.position) {
+				Attribute attribute = new Attribute(ChromosomeType.fromString(this.chr), this.position, getType(),
 						Double.parseDouble(getNextLine()));
 				this.position++;
 				return attribute;

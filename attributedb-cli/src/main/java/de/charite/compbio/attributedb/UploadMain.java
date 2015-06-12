@@ -1,6 +1,5 @@
 package de.charite.compbio.attributedb;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,7 +22,12 @@ public class UploadMain {
 
 	protected static AttributeType attributeType;
 
-	public static void main(String[] args) throws SQLException, ParseException, IOException {
+	/**
+	 * @param args
+	 * @throws SQLException
+	 * @throws ParseException
+	 */
+	public static void main(String[] args) throws SQLException, ParseException {
 		UploadSettings.parseArgs(args);
 
 

@@ -23,7 +23,7 @@ public class TSVScoreReader extends ScoreReader {
 	@Override
 	public Attribute next() {
 		if (hasNext()) {
-			List<String> split = new ArrayList<String>();
+			List<String> split = new ArrayList<>();
 			for (String string : Splitter.on('\t').trimResults().omitEmptyStrings().split(getNextLine())) {
 				split.add(string);
 			}
