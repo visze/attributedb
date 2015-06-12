@@ -16,7 +16,8 @@ There are two different workflows implemented, if you run the command line versi
 
 1. `list-attributes` - Overview of the different attribute scores stored in the database. 
 2. `upload` - Upload a new score into the database.
-2. `download` - Download scores for positions or annotate VCF file. 
+3. `upload-max - Upload only the maximum of a score from diferent files.
+4. `download` - Download scores for positions or annotate VCF file. 
 
 ## Quickstart
 
@@ -68,6 +69,13 @@ Until now, two file formats are supported. They can be defined with the command 
 
 1. [WIG-Format](http://genome.ucsc.edu/goldenpath/help/wiggle.html) - use `wig` as file type
 2. TSV-Format - use `tsv` as file type. TAB separated file with chromosome, position, and score. No header is allowed!
+3. GERP++ RS score - use `gerprs` to upload the RS score of [GERP++][http://mendel.stanford.edu/SidowLab/downloads/gerp/]. You can find the score in the [elements file][http://mendel.stanford.edu/SidowLab/downloads/gerp/hg19.GERP_elements.tar.gz]. The score is computed by the `gerpelem` program.
+
+### upload-max
+
+Similar to upload, but uploads only the maximum score of a position between the given files. Please be sure that scores of the files are sorted! Every file is used as a new score. Therefore it is not possible to privide multiple files per chromosome for a score (like in the upload command).
+
+Command line options are the same as in the upload command.
 
 ### download
 
