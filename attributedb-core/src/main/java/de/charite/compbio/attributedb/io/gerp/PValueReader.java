@@ -6,7 +6,7 @@ import java.util.List;
 import de.charite.compbio.attributedb.model.score.AttributeType;
 
 /**
- * Reader of the GERP++ RS score. This is a really specific reader. It only works with the <a
+ * Reader of the GERP++ p-value. This is a really specific reader. It only works with the <a
  * href="http://mendel.stanford.edu/SidowLab/downloads/gerp/hg19.GERP_elements.tar.gz"> elements file</a> of the gerp
  * website.
  * 
@@ -17,18 +17,18 @@ import de.charite.compbio.attributedb.model.score.AttributeType;
  *      href="http://mendel.stanford.edu/SidowLab/downloads/gerp/">http://mendel.stanford.edu/SidowLab/downloads/gerp/</a>
  *
  */
-public class RSScoreReader extends GERPElementsFileReader {
+public class PValueReader extends GERPElementsFileReader {
 
 	/**
-	 * Constructor. Sets the position of the score in the split array to 3.
+	 * Constructor. Sets the position of the score in the split array to 4.
 	 * 
 	 * @param files {@link List} with paths to the files (but only one element-file on the GERP website) 
-	 * @param type The {@link AttributeType} of the score you upload (something like gerprsscore).
+	 * @param type The {@link AttributeType} of the score you upload (something like gerprspvalue).
 	 * @throws IOException
 	 */
-	public RSScoreReader(List<String> files, AttributeType type) throws IOException {
+	public PValueReader(List<String> files, AttributeType type) throws IOException {
 		super(files, type);
-		setSplitPosition(3);
+		setSplitPosition(4);
 	}
 
 }

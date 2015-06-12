@@ -41,5 +41,10 @@ public class Attribute extends Position {
 		this.value = rs.getDouble("value");
 		
 	}
+	
+	@Override
+	public String toString() {
+		return getChr().toString()+":"+getPosition()+"="+getValue();
+	}
 
 }

@@ -19,6 +19,7 @@ public class WigFileReader extends ScoreReader {
 		super(files, type);
 	}
 
+	private boolean fixedStep;
 	private int position;
 	private String chr;
 	private int end;
@@ -51,22 +52,42 @@ public class WigFileReader extends ScoreReader {
 	}
 
 	private void checkHeader() {
-		Pattern p = Pattern.compile("^fixedStep\\schrom=(chr([0-9]+|X|Y|M))\\sstart=(\\d+)\\sstep=(\\d+)$");
+		Pattern p = Pattern.compile("^#?fixedStep\\schrom=(chr([0-9]+|X|Y|M))\\sstart=(\\d+)\\sstep=(\\d+)$");
 		Matcher m = p.matcher(getNextLine());
 		if (m.matches()) {
+			fixedStep = true;
 			this.chr = m.group(2);
 			this.position = Integer.parseInt(m.group(3));
 			this.end = this.position + Integer.parseInt(m.group(4));
 			setNextLine(null);
+		} else {
+			p = Pattern.compile("^#?bedGraph.*(chr([0-9]+|X|Y|M)):(\\d+)-(\\d+)$");
+			m = p.matcher(getNextLine());
+			if (m.matches()) {
+				fixedStep = false;
+				this.chr = m.group(2);
+				this.position = Integer.parseInt(m.group(3));
+				this.end = this.position + Integer.parseInt(m.group(4));
+				setNextLine(null);
+			}
 		}
 	}
 
 	@Override
 	public Attribute next() {
 		if (hasNext()) {
+			double value;
+			if (fixedStep)
+				value = Double.parseDouble(getNextLine());
+			else {
+				String[] split = getNextLine().split("\t");
+				value = Double.parseDouble(split[3]);
+				end = Integer.parseInt(split[2]);
+			}
+
 			if (this.end > this.position) {
 				Attribute attribute = new Attribute(ChromosomeType.fromString(this.chr), this.position, getType(),
-						Double.parseDouble(getNextLine()));
+						value);
 				this.position++;
 				return attribute;
 			} else {
@@ -76,5 +97,4 @@ public class WigFileReader extends ScoreReader {
 		return null;
 
 	}
-
 }

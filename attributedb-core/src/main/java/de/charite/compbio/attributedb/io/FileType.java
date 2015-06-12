@@ -9,7 +9,8 @@ package de.charite.compbio.attributedb.io;
 public enum FileType {
 
 	/**
-	 * TSV files (tab separated). Format is Chromsosome, position, score. No Header!
+	 * TSV files (tab separated). Format is Chromsosome, position, score. No
+	 * Header!
 	 */
 	TSV("tsv"),
 	/**
@@ -17,9 +18,17 @@ public enum FileType {
 	 */
 	WIG("wig"),
 	/**
-	 * File format of the GERP++ RS score in the elements file of the website. Uses the first column.
+	 * File format of the GERP++ RS score in the <a href=
+	 * "http://mendel.stanford.edu/SidowLab/downloads/gerp/hg19.GERP_elements.tar.gz"
+	 * > elements file</a> of the gerp website. Uses the first column.
 	 */
-	GERP_RS_SCORE("gerprs");
+	GERP_RS_SCORE("gerprs"),
+	/**
+	 * File format of the GERP++ RS p-value in the <a href=
+	 * "http://mendel.stanford.edu/SidowLab/downloads/gerp/hg19.GERP_elements.tar.gz"
+	 * > elements file</a> of the website. Uses the first column.
+	 */
+	GERP_RS_P_VALUE("gerprspvalue");
 
 	private String name;
 
@@ -41,7 +50,8 @@ public enum FileType {
 	 * 
 	 * @param text
 	 *            name of the enum
-	 * @return The corresponding ENUM of the given {@link String}. Returns null if not found. 
+	 * @return The corresponding ENUM of the given {@link String}. Returns null
+	 *         if not found.
 	 */
 	public static FileType fromString(String text) {
 		if (text != null) {
