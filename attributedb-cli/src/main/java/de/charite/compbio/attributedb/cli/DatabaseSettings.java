@@ -43,6 +43,11 @@ public class DatabaseSettings {
 
 	}
 
+
+	/**
+	 * @param cmd
+	 * @throws ParseException
+	 */
 	public static void parseOptions(CommandLine cmd) throws ParseException {
 
 		DatabaseConnection.setHOST(cmd.getOptionValue("H"));

@@ -14,7 +14,7 @@ public class ListAttributesSetting extends DatabaseSettings {
 	public static String NAME_LIKE = "%";
 	public static String NAME_ILIKE = "%";
 
-	public static void parseArgs(String[] args) throws ParseException {
+	public static void parseArgs(String[] args) {
 
 		// create Options object
 		Options options = new Options();

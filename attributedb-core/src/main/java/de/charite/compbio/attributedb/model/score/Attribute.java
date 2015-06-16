@@ -30,16 +30,21 @@ public class Attribute extends Position {
 	}
 
 	public AttributeType getType() {
-		return type;
+		return this.type;
 	}
 
 	public double getValue() {
-		return value;
+		return this.value;
 	}
 
 	public void set(ResultSet rs) throws SQLException {
 		this.value = rs.getDouble("value");
 		
+	}
+	
+	@Override
+	public String toString() {
+		return getChr().toString()+":"+getPosition()+"="+getValue();
 	}
 
 }

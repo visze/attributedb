@@ -12,6 +12,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.compress.compressors.CompressorException;
+import org.apache.commons.compress.compressors.CompressorInputStream;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
+
 import de.charite.compbio.attributedb.model.score.Attribute;
 import de.charite.compbio.attributedb.model.score.AttributeType;
 
@@ -34,22 +38,33 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 	}
 
 	protected void setNextReader() throws IOException {
-		if (fileIterator.hasNext()) {
+		if (this.fileIterator.hasNext()) {
 			Reader reader = getReader();
 			setBr(new BufferedReader(reader));
-			linesIterator = getBr().lines().iterator();
+			this.linesIterator = getBr().lines().iterator();
 		} else {
-			fileIterator = null;
+			this.fileIterator = null;
 		}
 	}
 
 	private Reader getReader() throws IOException {
-		String nextFile = fileIterator.next();
+		String nextFile = this.fileIterator.next();
 		Reader reader;
+		InputStream fin = new FileInputStream(nextFile);
+		BufferedInputStream in = new BufferedInputStream(fin);
+
 		if (isGZipped(new FileInputStream(nextFile))) {
-			reader = new InputStreamReader(new GZIPInputStream(new FileInputStream(nextFile)), Charset.defaultCharset());
+			try {
+				CompressorInputStream gzIn = new CompressorStreamFactory().createCompressorInputStream(in);
+//				ArchiveInputStream input = new ArchiveStreamFactory().createArchiveInputStream(gzIn);
+				reader = new InputStreamReader(gzIn, Charset.defaultCharset());
+			} catch (CompressorException e) {
+				e.printStackTrace();
+				GZIPInputStream gzIn = new GZIPInputStream(in);
+				reader = new InputStreamReader(gzIn, Charset.defaultCharset());
+			}
 		} else {
-			reader = new InputStreamReader(new FileInputStream(nextFile), Charset.defaultCharset());
+			reader = new InputStreamReader(in, Charset.defaultCharset());
 		}
 		return reader;
 	}
@@ -72,18 +87,18 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 
 	@Override
 	public boolean hasNext() {
-		if (linesIterator != null) {
-			if (nextLine == null && linesIterator.hasNext()) {
-				nextLine = linesIterator.next();
+		if (this.linesIterator != null) {
+			if (this.nextLine == null && this.linesIterator.hasNext()) {
+				this.nextLine = this.linesIterator.next();
 				return hasNext();
 			}
 		}
 
-		if (nextLine != null) {
+		if (this.nextLine != null) {
 			return true;
 		}
 
-		if (fileIterator != null && fileIterator.hasNext()) {
+		if (this.fileIterator != null && this.fileIterator.hasNext()) {
 			try {
 				setNextReader();
 			} catch (IOException e) {
@@ -99,31 +114,35 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 	}
 
 	public AttributeType getType() {
-		return type;
+		return this.type;
 	}
 
 	protected String getNextLine() {
-		if (nextLine != null)
-			return nextLine.trim();
+		if (this.nextLine != null)
+			return this.nextLine.trim();
 		else
-			return nextLine;
+			return this.nextLine;
 	}
 
 	protected Iterator<String> getLinesIterator() {
-		return linesIterator;
+		return this.linesIterator;
 	}
-	
+
 	protected void setBr(BufferedReader br) {
 		this.br = br;
 	}
-	
+
 	protected BufferedReader getBr() {
-		return br;
+		return this.br;
 	}
-	
+
 	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
+	}
+
+	protected Iterator<String> getFileIterator() {
+		return this.fileIterator;
 	}
 
 }

@@ -30,15 +30,15 @@ public class AttributeType {
 
 
 	public int getId() {
-		return id;
+		return this.id;
 	}
 	
 	public String getName() {
-		return name;
+		return this.name;
 	}
 	
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 	
 	public void setId(int id) {

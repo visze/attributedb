@@ -4,15 +4,12 @@ import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFFileReader;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.cli.ParseException;
 
 import de.charite.compbio.attributedb.cli.DownloadSettings;
 import de.charite.compbio.attributedb.db.DatabaseConnection;
@@ -30,13 +27,12 @@ public class DownloadMain {
 
 	private static List<AttributeType> types;
 
-	public static void main(String[] args) throws SQLException, ParseException, IOException {
+	public static void main(String[] args) throws SQLException {
 		DownloadSettings.parseArgs(args);
 
-		types = new ArrayList<AttributeType>();
+		types = new ArrayList<>();
 
 		Connection con = DatabaseConnection.getConnection();
-		int i = 0;
 		try {
 			// AttributeTypes. get ID
 
@@ -81,10 +77,10 @@ public class DownloadMain {
 				for (String file : DownloadSettings.VCF_FILES) {
 					VCFFileReader fr = new VCFFileReader(new File(file));
 					for (VariantContext vc : fr) {
-						List<Attribute> scores = getScores(ps, ChromosomeType.fromString(vc.getChr()), vc.getStart());
+						List<Attribute> scores = getScores(ps, ChromosomeType.fromString(vc.getContig()), vc.getStart());
 						printer.writeScores(scores);
-
 					}
+					fr.close();
 				}
 			}
 		} catch (Exception e) {
@@ -98,7 +94,7 @@ public class DownloadMain {
 
 	protected static List<Attribute> getScores(PreparedStatement ps, ChromosomeType chr, int position)
 			throws SQLException {
-		List<Attribute> scores = new ArrayList<Attribute>();
+		List<Attribute> scores = new ArrayList<>();
 		Position pos = new Position(chr, position);
 		for (AttributeType type : types) {
 

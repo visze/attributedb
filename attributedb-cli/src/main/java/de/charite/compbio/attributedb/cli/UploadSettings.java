@@ -24,15 +24,13 @@ public class UploadSettings extends DatabaseSettings {
 	public static List<String> FILES;
 	public static FileType FILE_TYPE;
 	public static AttributeType ATTRIBUTE_TYPE;
+	public static boolean UPLOAD_ZERO;
+	public static int SCORE_COLUMN;
 
-	public static void parseArgs(String[] args) throws ParseException {
+	public static void parseArgs(String[] args) {
 
 		// create Options object
 		Options options = new Options();
-
-		OptionBuilder.withLongOpt("help");
-		OptionBuilder.withDescription("Print this help message");
-		options.addOption(OptionBuilder.create("h"));
 
 		setOptions(options);
 
@@ -42,7 +40,7 @@ public class UploadSettings extends DatabaseSettings {
 			if (args.length == 0) {
 				throw new MissingOptionException("Please Insert an argument");
 			}
-			
+
 			parseOptions(cmd);
 
 		} catch (ParseException e) {
@@ -82,25 +80,39 @@ public class UploadSettings extends DatabaseSettings {
 		OptionBuilder.isRequired();
 		OptionBuilder.withDescription("A detailed description of the database.");
 		options.addOption(OptionBuilder.create("d"));
+		
+		OptionBuilder.withLongOpt("column");
+		OptionBuilder.hasArg();
+		OptionBuilder.withDescription("Column of the score in a BED or TSV file.");
+		options.addOption(OptionBuilder.create());
+
+		OptionBuilder.withLongOpt("no-zero-upload");
+		OptionBuilder
+				.withDescription("If option is provided no scores with 0 are uploaded. Recommended if score is present for every genome position.");
+		options.addOption(OptionBuilder.create());
 
 	}
 
-	public static void parseOptions(CommandLine cmd)  throws ParseException  {
-		
+	public static void parseOptions(CommandLine cmd) throws ParseException {
+
 		HelpSettings.parseOptions(cmd);
 		DatabaseSettings.parseOptions(cmd);
 
-		FILES = new ArrayList<String>();
+		FILES = new ArrayList<>();
 		for (String option : cmd.getOptionValues("f")) {
 			FILES.add(option);
 		}
-		ATTRIBUTE_TYPE = new AttributeType(cmd.getOptionValue("n"),cmd.getOptionValue("d"));
-		
+		ATTRIBUTE_TYPE = new AttributeType(cmd.getOptionValue("n"), cmd.getOptionValue("d"));
+
 		if (cmd.hasOption("t"))
 			FILE_TYPE = FileType.fromString(cmd.getOptionValue("t"));
 		else
 			FILE_TYPE = FileType.TSV;
 		
+		UPLOAD_ZERO = !cmd.hasOption("no-zero-upload"); 
+		
+		if (cmd.hasOption("column"))
+			SCORE_COLUMN = Integer.parseInt(cmd.getOptionValue("column"));
 
 	}
 

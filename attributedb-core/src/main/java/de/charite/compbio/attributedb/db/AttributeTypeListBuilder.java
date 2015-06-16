@@ -41,11 +41,11 @@ public class AttributeTypeListBuilder {
 	}
 
 	public List<AttributeType> create() throws SQLException {
-		List<AttributeType> output = new ArrayList<AttributeType>();
+		List<AttributeType> output = new ArrayList<>();
 
-		PreparedStatement ps = connection.prepareStatement(SELECT_SQL);
-		ps.setString(1, nameLike);
-		ps.setString(2, nameILike);
+		PreparedStatement ps = this.connection.prepareStatement(SELECT_SQL);
+		ps.setString(1, this.nameLike);
+		ps.setString(2, this.nameILike);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
 			AttributeType at = new AttributeType(rs.getString(2), rs.getString(3));
