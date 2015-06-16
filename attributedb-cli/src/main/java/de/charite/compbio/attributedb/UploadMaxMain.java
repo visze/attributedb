@@ -38,7 +38,8 @@ public class UploadMaxMain extends UploadMain {
 			scores = new ArrayList<>();
 			for (String file : UploadSettings.FILES) {
 				ScoreReader reader = new ScoreReaderBuilder().setFileType(UploadSettings.FILE_TYPE)
-						.setAttributeType(attributeType).setFiles(Arrays.<String> asList(file)).create();
+						.setAttributeType(attributeType).setScoreColumn(UploadSettings.SCORE_COLUMN)
+						.setFiles(Arrays.<String> asList(file)).create();
 				readers.add(reader);
 				if (reader.hasNext())
 					scores.add(reader.next());

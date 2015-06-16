@@ -63,7 +63,6 @@ public abstract class GERPElementsFileReader extends ScoreReader {
 			return hasNext();
 		}
 		return false;
-
 	}
 
 	private void checkHeader() {

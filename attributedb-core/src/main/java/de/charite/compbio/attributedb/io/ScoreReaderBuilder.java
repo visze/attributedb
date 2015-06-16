@@ -18,6 +18,7 @@ public class ScoreReaderBuilder {
 	private AttributeType attributeType;
 	private List<String> files;
 	private FileType fileType;
+	private int scoreColumn;
 
 	public ScoreReaderBuilder setFileType(FileType fileType) {
 		this.fileType = fileType;
@@ -33,6 +34,11 @@ public class ScoreReaderBuilder {
 		this.files = files;
 		return this;
 	}
+	
+	public ScoreReaderBuilder setScoreColumn(int column) {
+		this.scoreColumn = column;
+		return this;
+	}
 
 	public ScoreReader create() throws IOException {
 
@@ -40,11 +46,13 @@ public class ScoreReaderBuilder {
 		case WIG:
 			return new WigFileReader(this.files, this.attributeType);
 		case TSV:
-			return new TSVScoreReader(this.files, this.attributeType);
+			return new TSVScoreReader(this.files, this.attributeType, this.scoreColumn);
 		case GERP_RS_SCORE:
 			return new RSScoreReader(this.files, this.attributeType);
+		case BED:
+			return new BEDScoreReader(this.files, this.attributeType, this.scoreColumn);
 		default:
-			return new TSVScoreReader(this.files, this.attributeType);
+			return new TSVScoreReader(this.files, this.attributeType, 3);
 		}
 	}
 

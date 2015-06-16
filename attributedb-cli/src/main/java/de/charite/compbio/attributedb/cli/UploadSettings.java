@@ -25,6 +25,7 @@ public class UploadSettings extends DatabaseSettings {
 	public static FileType FILE_TYPE;
 	public static AttributeType ATTRIBUTE_TYPE;
 	public static boolean UPLOAD_ZERO;
+	public static int SCORE_COLUMN;
 
 	public static void parseArgs(String[] args) {
 
@@ -79,6 +80,11 @@ public class UploadSettings extends DatabaseSettings {
 		OptionBuilder.isRequired();
 		OptionBuilder.withDescription("A detailed description of the database.");
 		options.addOption(OptionBuilder.create("d"));
+		
+		OptionBuilder.withLongOpt("column");
+		OptionBuilder.hasArg();
+		OptionBuilder.withDescription("Column of the score in a BED or TSV file.");
+		options.addOption(OptionBuilder.create());
 
 		OptionBuilder.withLongOpt("no-zero-upload");
 		OptionBuilder
@@ -104,6 +110,9 @@ public class UploadSettings extends DatabaseSettings {
 			FILE_TYPE = FileType.TSV;
 		
 		UPLOAD_ZERO = !cmd.hasOption("no-zero-upload"); 
+		
+		if (cmd.hasOption("column"))
+			SCORE_COLUMN = Integer.parseInt(cmd.getOptionValue("column"));
 
 	}
 

@@ -30,8 +30,6 @@ public class UploadMain {
 	public static void main(String[] args) throws SQLException, ParseException {
 		UploadSettings.parseArgs(args);
 
-
-
 		Connection con = DatabaseConnection.getConnection();
 		int i = 0;
 		try {
@@ -40,7 +38,8 @@ public class UploadMain {
 			setAttributeType(con);
 
 			ScoreReader reader = new ScoreReaderBuilder().setFileType(UploadSettings.FILE_TYPE)
-					.setAttributeType(attributeType).setFiles(UploadSettings.FILES).create();
+					.setAttributeType(attributeType).setScoreColumn(UploadSettings.SCORE_COLUMN)
+					.setFiles(UploadSettings.FILES).create();
 
 			PreparedStatement ps = con.prepareStatement(Attribute.INSERT_STATEMENT);
 			Attribute score = null;
@@ -77,9 +76,9 @@ public class UploadMain {
 	}
 
 	protected static void setAttributeType(Connection con) throws SQLException {
-		
+
 		attributeType = UploadSettings.ATTRIBUTE_TYPE;
-		
+
 		PreparedStatement ps = con.prepareStatement(AttributeType.INSERT_STATEMENT);
 		ps.setString(1, attributeType.getName());
 		ps.setString(2, attributeType.getDescription());

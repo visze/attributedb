@@ -14,6 +14,10 @@ public enum FileType {
 	 */
 	TSV("tsv"),
 	/**
+	 * BED files. With chrom, start and stop. The scores can be defined
+	 */
+	BED("bed"),
+	/**
 	 * Wig file format with fixedLength.
 	 */
 	WIG("wig"),
