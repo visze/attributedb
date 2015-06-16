@@ -68,8 +68,9 @@ The name of the score is defined with option `-n` and a description must be set 
 Until now, two file formats are supported. They can be defined with the command `-t` (default TSV):
 
 1. [WIG-Format](http://genome.ucsc.edu/goldenpath/help/wiggle.html) - use `wig` as file type
-2. TSV-Format - use `tsv` as file type. TAB separated file with chromosome, position, and score. No header is allowed!
+2. TSV-Format - use `tsv` as file type. TAB separated file with chromosome, position, and score. No header is allowed! Score column can be defined by option `--column` (1 based).
 3. GERP++ RS score - use `gerprs` to upload the RS score of [GERP++](http://mendel.stanford.edu/SidowLab/downloads/gerp/). You can find the score in the [elements file](http://mendel.stanford.edu/SidowLab/downloads/gerp/hg19.GERP_elements.tar.gz). The score is computed by the `gerpelem` program.
+4. [BED-Format}(https://genome.ucsc.edu/FAQ/FAQformat.html#format1) - use `bed` as file type. TAB separated file with chromosome, start, end and score (0 based, end exclusive). Score column can be defined by option `--column` (1 based).
 
 ### upload-max
 
