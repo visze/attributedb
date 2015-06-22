@@ -57,9 +57,9 @@ public class UploadMain {
 				i++;
 				if (i % 1000000 == 0) {
 					ps.executeBatch();
-					con.commit();
 					System.out.println(i + " positions uploaded!");
 				}
+
 			}
 			ps.executeBatch();
 			con.commit();
