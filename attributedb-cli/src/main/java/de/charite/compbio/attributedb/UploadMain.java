@@ -66,7 +66,7 @@ public class UploadMain {
 			System.out.println("Upload complete");
 		} catch (Exception e) {
 			e.printStackTrace();
-			con.rollback();
+//			con.rollback();
 			con.close();
 			System.exit(1);
 		}

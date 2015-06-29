@@ -58,7 +58,7 @@ public class WigFileReader extends ScoreReader {
 			fixedStep = true;
 			this.chr = m.group(2);
 			this.position = Integer.parseInt(m.group(3));
-			this.end = this.position + Integer.parseInt(m.group(4));
+			this.end = Integer.parseInt(m.group(4));
 			setNextLine(null);
 		} else {
 			p = Pattern.compile("^#?bedGraph.*(chr([0-9]+|X|Y|M)):(\\d+)-(\\d+)$");
@@ -77,22 +77,27 @@ public class WigFileReader extends ScoreReader {
 	public Attribute next() {
 		if (hasNext()) {
 			double value;
-			if (fixedStep)
+			if (fixedStep) {
 				value = Double.parseDouble(getNextLine());
-			else {
+				Attribute attribute = new Attribute(ChromosomeType.fromString(this.chr), this.position, getType(),
+						value);
+				this.position += this.end;
+				setNextLine(null);
+				return attribute;
+			} else {
 				String[] split = getNextLine().split("\t");
 				value = Double.parseDouble(split[3]);
 				end = Integer.parseInt(split[2]);
+				if (this.end > this.position) {
+					Attribute attribute = new Attribute(ChromosomeType.fromString(this.chr), this.position, getType(),
+							value);
+					this.position++;
+					return attribute;
+				} else {
+					setNextLine(null);
+				}
 			}
 
-			if (this.end > this.position) {
-				Attribute attribute = new Attribute(ChromosomeType.fromString(this.chr), this.position, getType(),
-						value);
-				this.position++;
-				return attribute;
-			} else {
-				setNextLine(null);
-			}
 		}
 		return null;
 
