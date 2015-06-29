@@ -33,7 +33,7 @@ public class UploadMain {
 		Connection con = DatabaseConnection.getConnection();
 		int i = 0;
 		try {
-			con.setAutoCommit(false);
+			con.setAutoCommit(true);
 			// AttributeType. get ID
 			setAttributeType(con);
 
@@ -57,13 +57,11 @@ public class UploadMain {
 				i++;
 				if (i % 10000000 == 0) {
 					ps.executeBatch();
-					con.commit();
 					System.out.println(i + " positions uploaded!");
 				}
 
 			}
 			ps.executeBatch();
-			con.commit();
 			System.out.println(i + " scores uploaded!");
 			System.out.println("Upload complete");
 		} catch (Exception e) {

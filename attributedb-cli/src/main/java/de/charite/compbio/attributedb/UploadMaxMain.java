@@ -30,7 +30,7 @@ public class UploadMaxMain extends UploadMain {
 		Connection con = DatabaseConnection.getConnection();
 		int i = 0;
 		try {
-			con.setAutoCommit(false);
+			con.setAutoCommit(true);
 			// AttributeType. get ID
 			setAttributeType(con);
 
@@ -99,7 +99,6 @@ public class UploadMaxMain extends UploadMain {
 
 			}
 			ps.executeBatch();
-			con.commit();
 			System.out.println(i + " scores uploaded!");
 			System.out.println("Upload complete");
 		} catch (Exception e) {
