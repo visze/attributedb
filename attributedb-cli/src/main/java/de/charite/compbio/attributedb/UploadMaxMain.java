@@ -84,7 +84,7 @@ public class UploadMaxMain extends UploadMain {
 
 				i++;
 				// write if necessary
-				if (i % 10000000 == 0) {
+				if (i % 100000000 == 0) {
 					ps.executeBatch();
 					System.out.println(i + " positions uploaded!");
 				}
