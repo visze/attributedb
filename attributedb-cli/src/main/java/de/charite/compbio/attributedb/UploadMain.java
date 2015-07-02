@@ -1,9 +1,11 @@
 package de.charite.compbio.attributedb;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
@@ -11,6 +13,7 @@ import de.charite.compbio.attributedb.cli.UploadSettings;
 import de.charite.compbio.attributedb.db.DatabaseConnection;
 import de.charite.compbio.attributedb.io.ScoreReader;
 import de.charite.compbio.attributedb.io.ScoreReaderBuilder;
+import de.charite.compbio.attributedb.model.ScoreIterator;
 import de.charite.compbio.attributedb.model.score.Attribute;
 import de.charite.compbio.attributedb.model.score.AttributeType;
 
@@ -21,14 +24,27 @@ import de.charite.compbio.attributedb.model.score.AttributeType;
 public class UploadMain {
 
 	protected static AttributeType attributeType;
+	protected static Set<Long> positions;
 
 	/**
 	 * @param args
 	 * @throws SQLException
 	 * @throws ParseException
+	 * @throws IOException
 	 */
-	public static void main(String[] args) throws SQLException, ParseException {
+	public static void main(String[] args) throws SQLException, ParseException, IOException {
 		UploadSettings.parseArgs(args);
+
+		ScoreIterator iterator;
+
+		ScoreReader reader = new ScoreReaderBuilder().setFileType(UploadSettings.FILE_TYPE)
+				.setAttributeType(attributeType).setScoreColumn(UploadSettings.SCORE_COLUMN)
+				.setFiles(UploadSettings.FILES).create();
+
+		if (UploadSettings.POSITION_FILE != null)
+			iterator = new ScoreIterator(reader, UploadSettings.POSITION_FILE);
+		else
+			iterator = new ScoreIterator(reader);
 
 		Connection con = DatabaseConnection.getConnection();
 		int i = 0;
@@ -37,25 +53,17 @@ public class UploadMain {
 			// AttributeType. get ID
 			setAttributeType(con);
 
-			ScoreReader reader = new ScoreReaderBuilder().setFileType(UploadSettings.FILE_TYPE)
-					.setAttributeType(attributeType).setScoreColumn(UploadSettings.SCORE_COLUMN)
-					.setFiles(UploadSettings.FILES).create();
-
 			PreparedStatement ps = con.prepareStatement(Attribute.INSERT_STATEMENT);
 			Attribute score = null;
-			while (reader.hasNext()) {
-				score = reader.next();
-				if (score == null)
-					continue; // can be zero in wig files or GERP elements
-								// because of steps or intervals
-				if (!UploadSettings.UPLOAD_ZERO && score.getValue() == 0.0)
-					continue;// do not upload 0 if set
+			while (iterator.hasNext()) {
+
+				score = iterator.next();
 
 				score.setPrepareStatement(ps);
 				ps.addBatch();
 
 				i++;
-				if (i % 100000000 == 0) {
+				if (i % (positions == null || positions.isEmpty() ? 100000000 : positions.size() / 10) == 0) {
 					ps.executeBatch();
 					System.out.println(i + " positions uploaded!");
 				}
@@ -66,7 +74,7 @@ public class UploadMain {
 			System.out.println("Upload complete");
 		} catch (Exception e) {
 			e.printStackTrace();
-//			con.rollback();
+			// con.rollback();
 			con.close();
 			System.exit(1);
 		}
@@ -81,6 +89,9 @@ public class UploadMain {
 		PreparedStatement ps = con.prepareStatement(AttributeType.INSERT_STATEMENT);
 		ps.setString(1, attributeType.getName());
 		ps.setString(2, attributeType.getDescription());
+		ps.executeUpdate();
+		ps = con.prepareStatement(AttributeType.SELECT_NAME_STATEMENT);
+		ps.setString(1, attributeType.getName());
 		ResultSet rs = ps.executeQuery();
 		rs.next();
 		attributeType.setId(rs.getInt(1));

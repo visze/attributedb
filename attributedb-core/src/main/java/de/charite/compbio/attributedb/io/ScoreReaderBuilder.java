@@ -3,6 +3,7 @@ package de.charite.compbio.attributedb.io;
 import java.io.IOException;
 import java.util.List;
 
+import de.charite.compbio.attributedb.io.gerp.PValueReader;
 import de.charite.compbio.attributedb.io.gerp.RSScoreReader;
 import de.charite.compbio.attributedb.model.score.AttributeType;
 
@@ -49,6 +50,8 @@ public class ScoreReaderBuilder {
 			return new TSVScoreReader(this.files, this.attributeType, this.scoreColumn);
 		case GERP_RS_SCORE:
 			return new RSScoreReader(this.files, this.attributeType);
+		case GERP_RS_P_VALUE:
+			return new PValueReader(this.files, this.attributeType);
 		case BED:
 			return new BEDScoreReader(this.files, this.attributeType, this.scoreColumn);
 		default:

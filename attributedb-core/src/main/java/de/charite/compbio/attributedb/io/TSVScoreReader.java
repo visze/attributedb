@@ -30,7 +30,9 @@ public class TSVScoreReader extends ScoreReader {
 			for (String string : Splitter.on('\t').trimResults().omitEmptyStrings().split(getNextLine())) {
 				split.add(string);
 			}
-			Attribute attribute = new Attribute(ChromosomeType.fromString(split.get(0)),
+			Attribute attribute = null;
+			if (!split.isEmpty())
+				attribute = new Attribute(ChromosomeType.fromString(split.get(0)),
 					Integer.parseInt(split.get(1)), getType(), Double.parseDouble(split.get(getScoreColumn()-1)));
 			setNextLine(null);
 			return attribute;

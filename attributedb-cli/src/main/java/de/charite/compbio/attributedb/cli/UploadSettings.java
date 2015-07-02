@@ -26,6 +26,7 @@ public class UploadSettings extends DatabaseSettings {
 	public static AttributeType ATTRIBUTE_TYPE;
 	public static boolean UPLOAD_ZERO;
 	public static int SCORE_COLUMN;
+	public static String POSITION_FILE;
 
 	public static void parseArgs(String[] args) {
 
@@ -85,8 +86,14 @@ public class UploadSettings extends DatabaseSettings {
 		OptionBuilder.hasArg();
 		OptionBuilder.withDescription("Column of the score in a BED or TSV file.");
 		options.addOption(OptionBuilder.create());
+		
+		OptionBuilder.withLongOpt("positions");
+		OptionBuilder.hasArg();
+		OptionBuilder.withDescription("Upload only the positions given in this file. (CHR<TAB>pos...)");
+		options.addOption(OptionBuilder.create());
 
 		OptionBuilder.withLongOpt("no-zero-upload");
+		OptionBuilder.hasArg();
 		OptionBuilder
 				.withDescription("If option is provided no scores with 0 are uploaded. Recommended if score is present for every genome position.");
 		options.addOption(OptionBuilder.create());
@@ -109,7 +116,9 @@ public class UploadSettings extends DatabaseSettings {
 		else
 			FILE_TYPE = FileType.TSV;
 		
-		UPLOAD_ZERO = !cmd.hasOption("no-zero-upload"); 
+		UPLOAD_ZERO = !cmd.hasOption("no-zero-upload");
+		if (cmd.hasOption("positions"))
+			POSITION_FILE = cmd.getOptionValue("positions");
 		
 		if (cmd.hasOption("column"))
 			SCORE_COLUMN = Integer.parseInt(cmd.getOptionValue("column"));

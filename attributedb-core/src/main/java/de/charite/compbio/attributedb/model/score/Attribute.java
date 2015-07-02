@@ -21,6 +21,11 @@ public class Attribute extends Position {
 		super(chr, position);
 		this.type = type;
 		this.value = value;
+//		if (this.value < 1.0 *Math.pow(10, -37) && this.value > 0.0){
+//			this.value  = 1.0 *Math.pow(10, -37);
+//			System.out.println(value + "underflow for psql real. use " + this.toString() + "instead.");
+//		}
+			
 	}
 
 	public void setPrepareStatement(PreparedStatement ps) throws SQLException {

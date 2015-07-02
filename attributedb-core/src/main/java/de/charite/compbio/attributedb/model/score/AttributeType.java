@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class AttributeType {
 	
 	public static final String INSERT_STATEMENT = "INSERT INTO attribute_type "
-			+ "(name, description) VALUES (?,?) RETURNING id";
+			+ "(name, description) VALUES (?,?)";
 	public static final String SELECT_NAME_STATEMENT = "SELECT id, name, description FROM attribute_type "
 			+ "WHERE name = ?";
 	public static final String SELECT_STATEMENT = "SELECT id, name, description FROM attribute_type";
@@ -58,7 +58,6 @@ public class AttributeType {
 		setId(rs.getInt(1));
 		setName(rs.getString(2));
 		setDescription(rs.getString(3));
-		
 	}
 
 }

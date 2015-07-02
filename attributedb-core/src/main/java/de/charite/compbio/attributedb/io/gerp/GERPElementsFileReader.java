@@ -78,6 +78,12 @@ public abstract class GERPElementsFileReader extends ScoreReader {
 	public Attribute next() {
 		if (hasNext()) {
 			String[] split = getNextLine().split("\t");
+			if (split.length < 2) {
+				setNextLine(null);
+				this.position = 0;
+				return null;
+			}
+				
 			int start = Integer.parseInt(split[0]);
 			int end = Integer.parseInt(split[1]);
 			double value = Double.parseDouble(split[this.splitPosition]);

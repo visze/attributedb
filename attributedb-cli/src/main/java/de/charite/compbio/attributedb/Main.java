@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.configuration.ConfigurationException;
 
 /**
  * The attributeDB command-line program. You can upload, download or list scores that are stored in a database.
@@ -22,8 +23,9 @@ public class Main {
 	 * @throws ParseException
 	 * @throws SQLException
 	 * @throws IOException
+	 * @throws ConfigurationException 
 	 */
-	public static void main(String[] args) throws ParseException, SQLException, IOException {
+	public static void main(String[] args) throws ParseException, SQLException, IOException, ConfigurationException {
 
 		if (args.length == 0) {
 			// No arguments, print top level help and exit.
@@ -40,6 +42,8 @@ public class Main {
 			UploadMaxMain.main(newArgs);
 		else if (args[0].equals("list-attributes"))
 			ListAttributesMain.main(newArgs);
+		else if (args[0].equals("vcf"))
+			CreateVCFMain.main(newArgs);
 		else if (args[0].equals("download"))
 			DownloadMain.main(newArgs);
 		else {
