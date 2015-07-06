@@ -46,6 +46,8 @@ public class Main {
 			CreateVCFMain.main(newArgs);
 		else if (args[0].equals("download"))
 			DownloadMain.main(newArgs);
+		else if (args[0].equals("annotate-vcf"))
+			AnnotateFromVCFMain.main(newArgs);
 		else {
 			printTopLevelHelp();
 			System.err.println("unrecognized command " + args[0]);
@@ -66,6 +68,8 @@ public class Main {
 		System.err.println("Command: upload                     Upload a score into the Database");
 		System.err.println("         upload-max		            Upload the maximum score between different files.");
 		System.err.println("         download		            Download scores from the database or annotate VCF-files.");
+		System.err.println("         vcf			            Create a VCF with the files.");
+		System.err.println("         annotate-vcf			    Annotate from a VCF file.");
 		System.err.println("         list-attributes            List all available scores in the database");
 	}
 

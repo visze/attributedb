@@ -18,9 +18,10 @@ import de.charite.compbio.attributedb.model.score.AttributeType;
  * @author <a href="mailto:max.schubach@charite.de">Max Schubach</a>
  *
  */
-public class DownloadSettings extends DatabaseSettings {
+public class AnnotateFromVCFSettings  {
 
 	public static List<String> VCF_FILES;
+	public static String ANNOTATION_VCF_FILE;
 	public static List<String> POSITIONS;
 	public static List<AttributeType> ATTRIBUTE_TYPES;
 
@@ -44,7 +45,7 @@ public class DownloadSettings extends DatabaseSettings {
 			System.err.print(e.getMessage());
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.setWidth(120);
-			formatter.printHelp("AttributeDB - Download settings", options);
+			formatter.printHelp("AttributeDB - Annoate VCF settings ", options);
 			System.exit(0);
 		}
 
@@ -52,7 +53,6 @@ public class DownloadSettings extends DatabaseSettings {
 
 	public static void setOptions(Options options) {
 		HelpSettings.setOptions(options);
-		DatabaseSettings.setOptions(options);
 		// options
 
 		OptionBuilder.withLongOpt("file");
@@ -69,15 +69,21 @@ public class DownloadSettings extends DatabaseSettings {
 		OptionBuilder.hasArgs();
 		OptionBuilder.withDescription("Position to get score(s). Format: chr1:12123123");
 		options.addOption(OptionBuilder.create("p"));
+		
+		OptionBuilder.withLongOpt("annotation-vcf");
+		OptionBuilder.withDescription("VCF-File with annotations");
+		OptionBuilder.hasArgs();
+		options.addOption(OptionBuilder.create("a"));
 
 	}
 
 	public static void parseOptions(CommandLine cmd) throws ParseException  {
 		HelpSettings.parseOptions(cmd);
-		DatabaseSettings.parseOptions(cmd);
 		
 		if (cmd.hasOption("f") && cmd.hasOption("p"))
 			throw new ParseException("You cannot combine option \"position\" and \"file\"!");
+		
+		ANNOTATION_VCF_FILE = cmd.getOptionValue("a");
 		
 		VCF_FILES = new ArrayList<>();
 		if (cmd.hasOption("f"))

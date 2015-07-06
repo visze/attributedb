@@ -6,14 +6,12 @@ import htsjdk.variant.variantcontext.VariantContextBuilder;
 import htsjdk.variant.variantcontext.writer.Options;
 import htsjdk.variant.variantcontext.writer.VariantContextWriter;
 import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder;
-import htsjdk.variant.variantcontext.writer.VariantContextWriterBuilder.OutputType;
 import htsjdk.variant.vcf.VCFHeader;
 import htsjdk.variant.vcf.VCFHeaderLineCount;
 import htsjdk.variant.vcf.VCFHeaderLineType;
 import htsjdk.variant.vcf.VCFInfoHeaderLine;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.SQLException;
@@ -114,7 +112,7 @@ public class CreateVCFMain {
 		VariantContextWriterBuilder vcWBuilder = new VariantContextWriterBuilder();
 				
 		if (CreateVCFSettings.OUTPUT != null) {
-			vcWBuilder = vcWBuilder.setOption(Options.INDEX_ON_THE_FLY);
+			vcWBuilder = vcWBuilder.unsetOption(Options.INDEX_ON_THE_FLY);
 			vcWBuilder = vcWBuilder.setOutputFile(new File(CreateVCFSettings.OUTPUT));
 		} else {
 			OutputStream out = System.out;
@@ -134,9 +132,7 @@ public class CreateVCFMain {
 			Allele ref = Allele.create("N", true);
 			VariantContextBuilder vcBuilder = new VariantContextBuilder().alleles(Arrays.asList(ref)).noGenotypes();
 			for (int j = 0; j < types.size(); j++) {
-				if (nextScores.get(j) == null) {
-					vcBuilder = vcBuilder.attribute(types.get(j).getName(), 0.0);
-				} else {
+				if (nextScores.get(j) != null) {
 					Attribute at = nextScores.get(j);
 					vcBuilder = vcBuilder.attribute(types.get(j).getName(), at.getValue()).chr(at.getChr().getName())
 							.start(at.getPosition()).stop(at.getPosition());
@@ -146,6 +142,7 @@ public class CreateVCFMain {
 			writer.add(vc);
 			i++;
 		}
+		writer.close();
 		System.exit(0);
 	}
 
