@@ -1,5 +1,6 @@
 package de.charite.compbio.attributedb.io;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import org.apache.commons.csv.CSVPrinter;
 import de.charite.compbio.attributedb.model.score.Attribute;
 import de.charite.compbio.attributedb.model.score.AttributeType;
 
-public class ScorePrinter {
+public class ScorePrinter implements Closeable {
 
 	private final CSVFormat format = CSVFormat.newFormat('\t').withQuote(null).withRecordSeparator("\r\n")
 			.withIgnoreSurroundingSpaces(true);
@@ -49,5 +50,11 @@ public class ScorePrinter {
 		}
 		getPrinter().printRecord(columns);
 
+	}
+
+	@Override
+	public void close() throws IOException {
+		getPrinter().close();
+		
 	}
 }

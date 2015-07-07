@@ -56,7 +56,7 @@ public class AnnotateFromVCFSettings  {
 		// options
 
 		OptionBuilder.withLongOpt("file");
-		OptionBuilder.withDescription("file or files to upload");
+		OptionBuilder.withDescription("VCF files to annotate");
 		OptionBuilder.hasArgs();
 		options.addOption(OptionBuilder.create("f"));
 

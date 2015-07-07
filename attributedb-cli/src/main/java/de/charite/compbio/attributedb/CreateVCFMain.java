@@ -213,6 +213,8 @@ public class CreateVCFMain {
 		for (Attribute attribute : output) {
 			if (attribute == null)
 				continue;
+			if (score.getChr().getOrder() < attribute.getChr().getOrder())
+				return true;
 			if (score.getChr() == attribute.getChr() && score.getPosition() < attribute.getPosition())
 				return true;
 		}

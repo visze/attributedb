@@ -57,6 +57,10 @@ public class MaxScoreIterator extends AScoreIterator {
 				if (maxScore == null) {
 					maxScore = theScore;
 					index.add(j);
+				} else if (theScore.getChr().getOrder() <= maxScore.getChr().getOrder()) {
+					maxScore = theScore; // lower position
+					index = new ArrayList<>();
+					index.add(j);
 				} else if (theScore.getChr() == maxScore.getChr() && theScore.getPosition() < maxScore.getPosition()) {
 					maxScore = theScore; // lower position
 					index = new ArrayList<>();

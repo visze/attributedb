@@ -41,6 +41,10 @@ public class Attribute extends Position {
 	public double getValue() {
 		return this.value;
 	}
+	
+	public void setType(AttributeType type) {
+		this.type = type;
+	}
 
 	public void set(ResultSet rs) throws SQLException {
 		this.value = rs.getDouble("value");

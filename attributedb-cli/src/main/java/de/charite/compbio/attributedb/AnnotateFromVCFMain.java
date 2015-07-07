@@ -62,7 +62,7 @@ public class AnnotateFromVCFMain {
 				fr.close();
 			}
 		}
-
+		printer.close();
 		System.exit(0);
 	}
 
@@ -76,14 +76,13 @@ public class AnnotateFromVCFMain {
 
 	protected static List<Attribute> getScores(ChromosomeType chr, int position) {
 		List<Attribute> scores = new ArrayList<>();
-		CloseableIterator<VariantContext> vcI = parser.query(chr.getShortName(), position, position);
+		CloseableIterator<VariantContext> vcI = parser.query(chr.getName(), position, position);
 		if (vcI.hasNext()) {
 			VariantContext vc = vcI.next();
 			for (AttributeType type : types) {
 
 				Attribute score = new Attribute(chr, position, type,
 						vc.getAttributeAsDouble(type.getName(), Double.NaN));
-
 				scores.add(score);
 			}
 		} else {
