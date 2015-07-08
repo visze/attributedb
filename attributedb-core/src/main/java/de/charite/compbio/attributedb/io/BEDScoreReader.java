@@ -77,6 +77,8 @@ public class BEDScoreReader extends ScoreReader {
 			} else {
 				setNextLine(null);
 				this.position = 0;
+				if (hasNext())
+					return next();
 			}
 		}
 		return null;

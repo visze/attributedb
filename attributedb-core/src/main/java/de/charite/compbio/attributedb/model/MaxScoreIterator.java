@@ -6,6 +6,7 @@ import java.util.List;
 
 import de.charite.compbio.attributedb.io.ScoreReader;
 import de.charite.compbio.attributedb.model.score.Attribute;
+import de.charite.compbio.attributedb.model.score.ChromosomeType;
 
 public class MaxScoreIterator extends AScoreIterator {
 
@@ -35,6 +36,8 @@ public class MaxScoreIterator extends AScoreIterator {
 		}
 
 	}
+	
+	private ChromosomeType chr = null;
 
 	public Attribute nextScore() {
 
@@ -51,13 +54,13 @@ public class MaxScoreIterator extends AScoreIterator {
 					getScores().set(j, getReaders().get(j).next());
 
 				Attribute theScore = getScores().get(j);
-
-				if (theScore == null)
+				
+				if (theScore == null) {
 					continue;
-				if (maxScore == null) {
+				} else if (maxScore == null) {
 					maxScore = theScore;
 					index.add(j);
-				} else if (theScore.getChr().getOrder() <= maxScore.getChr().getOrder()) {
+				} else if (theScore.getChr().getOrder() < maxScore.getChr().getOrder()) {
 					maxScore = theScore; // lower position
 					index = new ArrayList<>();
 					index.add(j);
