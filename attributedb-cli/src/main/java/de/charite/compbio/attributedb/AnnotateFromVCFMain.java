@@ -36,6 +36,8 @@ public class AnnotateFromVCFMain {
 		Collection<VCFInfoHeaderLine> infoHeaders = parser.getFileHeader().getInfoHeaderLines();
 		for (VCFInfoHeaderLine vcfInfoHeaderLine : infoHeaders) {
 			AttributeType type = new AttributeType(vcfInfoHeaderLine.getID(), vcfInfoHeaderLine.getDescription());
+			if (type.getName().equals("SF")) //workaround
+				continue;
 			if (AnnotateFromVCFSettings.ATTRIBUTE_TYPES.isEmpty() || contains(AnnotateFromVCFSettings.ATTRIBUTE_TYPES,type))
 				types.add(type);
 		}
