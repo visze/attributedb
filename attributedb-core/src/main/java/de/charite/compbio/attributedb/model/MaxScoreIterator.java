@@ -6,7 +6,6 @@ import java.util.List;
 
 import de.charite.compbio.attributedb.io.ScoreReader;
 import de.charite.compbio.attributedb.model.score.Attribute;
-import de.charite.compbio.attributedb.model.score.ChromosomeType;
 
 public class MaxScoreIterator extends AScoreIterator {
 
@@ -37,8 +36,6 @@ public class MaxScoreIterator extends AScoreIterator {
 
 	}
 	
-	private ChromosomeType chr = null;
-
 	public Attribute nextScore() {
 
 		// get max
@@ -81,7 +78,7 @@ public class MaxScoreIterator extends AScoreIterator {
 					getScores().set(j, getReaders().get(j).next());
 				else
 					getScores().set(j, null);
-			}
+				}
 
 			if (maxScore == null || !containsPosition(maxScore))
 				continue; // can be zero in wig files or GERP elements
