@@ -20,9 +20,11 @@ public class WigFileReader extends ScoreReader {
 	}
 
 	private boolean fixedStep;
+	private boolean variableStep;
 	private int position;
 	private String chr;
 	private int end;
+	private int span;
 
 	@Override
 	public boolean hasNext() {
@@ -52,22 +54,30 @@ public class WigFileReader extends ScoreReader {
 	}
 
 	private void checkHeader() {
-		Pattern p = Pattern.compile("^#?fixedStep\\schrom=(chr([0-9]+|X|Y|M))\\sstart=(\\d+)\\sstep=(\\d+)$");
-		Matcher m = p.matcher(getNextLine());
-		if (m.matches()) {
+		Pattern pFixed = Pattern.compile("^#?fixedStep\\schrom=(chr([0-9]+|X|Y|M))\\sstart=(\\d+)\\sstep=(\\d+)$");
+		Pattern pVariable = Pattern.compile("^#?variableStep\\schrom=(chr([0-9]+|X|Y|M))\\sspan=(\\d+)$");
+		Matcher mFixed = pFixed.matcher(getNextLine());
+		Matcher mVariable = pVariable.matcher(getNextLine());
+		if (mFixed.matches()) {
 			fixedStep = true;
-			this.chr = m.group(2);
-			this.position = Integer.parseInt(m.group(3));
-			this.end = Integer.parseInt(m.group(4));
+			this.chr = mFixed.group(2);
+			this.position = Integer.parseInt(mFixed.group(3));
+			this.end = Integer.parseInt(mFixed.group(4));
+			setNextLine(null);
+		} else if (mVariable.matches()) {
+			variableStep = true;
+			this.chr = mVariable.group(2);
+			this.position = Integer.MIN_VALUE;
+			this.span = Integer.parseInt(mVariable.group(3));
 			setNextLine(null);
 		} else {
-			p = Pattern.compile("^#?bedGraph.*(chr([0-9]+|X|Y|M)):(\\d+)-(\\d+)$");
-			m = p.matcher(getNextLine());
-			if (m.matches()) {
+			pFixed = Pattern.compile("^#?bedGraph.*(chr([0-9]+|X|Y|M)):(\\d+)-(\\d+)$");
+			mFixed = pFixed.matcher(getNextLine());
+			if (mFixed.matches()) {
 				fixedStep = false;
-				this.chr = m.group(2);
-				this.position = Integer.parseInt(m.group(3));
-				this.end = this.position + Integer.parseInt(m.group(4));
+				this.chr = mFixed.group(2);
+				this.position = Integer.parseInt(mFixed.group(3));
+				this.end = this.position + Integer.parseInt(mFixed.group(4));
 				setNextLine(null);
 			}
 		}
@@ -84,6 +94,22 @@ public class WigFileReader extends ScoreReader {
 				this.position += this.end;
 				setNextLine(null);
 				return attribute;
+			} else if (variableStep) {
+				String[] split = getNextLine().split("\t");
+				value = Double.parseDouble(split[1]);
+				if (this.position == Integer.MIN_VALUE) {
+					this.position = Integer.parseInt(split[0]);
+					this.end = this.position + this.span;
+				}
+				if (this.end > this.position) {
+					Attribute attribute = new Attribute(ChromosomeType.fromString(this.chr), this.position, getType(),
+							value);
+					this.position++;
+					return attribute;
+				} else {
+					this.position = Integer.MIN_VALUE;
+					setNextLine(null);
+				}
 			} else {
 				String[] split = getNextLine().split("\t");
 				value = Double.parseDouble(split[3]);
