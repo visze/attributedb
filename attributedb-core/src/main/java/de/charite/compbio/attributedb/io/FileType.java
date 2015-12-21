@@ -18,7 +18,7 @@ public enum FileType {
 	 */
 	BED("bed"),
 	/**
-	 * Wig file format with fixedLength.
+	 * Wig file format with fixed or variable length
 	 */
 	WIG("wig"),
 	/**
