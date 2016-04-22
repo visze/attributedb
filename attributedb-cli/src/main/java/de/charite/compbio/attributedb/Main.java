@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.configuration.ConfigurationException;
 
 /**
@@ -24,8 +25,9 @@ public class Main {
 	 * @throws SQLException
 	 * @throws IOException
 	 * @throws ConfigurationException 
+	 * @throws CompressorException 
 	 */
-	public static void main(String[] args) throws ParseException, SQLException, IOException, ConfigurationException {
+	public static void main(String[] args) throws ParseException, SQLException, IOException, ConfigurationException, CompressorException {
 
 		if (args.length == 0) {
 			// No arguments, print top level help and exit.

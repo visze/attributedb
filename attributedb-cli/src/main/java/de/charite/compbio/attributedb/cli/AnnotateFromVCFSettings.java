@@ -21,6 +21,7 @@ import de.charite.compbio.attributedb.model.score.AttributeType;
 public class AnnotateFromVCFSettings  {
 
 	public static List<String> VCF_FILES;
+	public static List<String> POSITIONS_FILES;
 	public static String ANNOTATION_VCF_FILE;
 	public static List<String> POSITIONS;
 	public static List<AttributeType> ATTRIBUTE_TYPES;
@@ -70,6 +71,11 @@ public class AnnotateFromVCFSettings  {
 		OptionBuilder.withDescription("Position to get score(s). Format: chr1:12123123");
 		options.addOption(OptionBuilder.create("p"));
 		
+		OptionBuilder.withLongOpt("positions-file");
+		OptionBuilder.withDescription("File with positions");
+		OptionBuilder.hasArgs();
+		options.addOption(OptionBuilder.create());
+		
 		OptionBuilder.withLongOpt("annotation-vcf");
 		OptionBuilder.withDescription("VCF-File with annotations");
 		OptionBuilder.hasArgs();
@@ -101,6 +107,11 @@ public class AnnotateFromVCFSettings  {
 		if (cmd.hasOption("n"))
 			for (String name : cmd.getOptionValues("n")) {
 				ATTRIBUTE_TYPES.add(new AttributeType(name, null));
+			}
+		POSITIONS_FILES = new ArrayList<>();
+		if (cmd.hasOption("positions-file"))
+			for (String name : cmd.getOptionValues("positions-file")) {
+				POSITIONS_FILES.add(name);
 			}
 	}
 
