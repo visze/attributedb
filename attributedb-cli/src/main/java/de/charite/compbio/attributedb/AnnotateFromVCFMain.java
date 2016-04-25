@@ -11,7 +11,10 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.OptionalDouble;
 
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorInputStream;
@@ -42,16 +45,16 @@ public class AnnotateFromVCFMain {
 		types = new ArrayList<>();
 
 		parser = new VCFFileReader(new File(AnnotateFromVCFSettings.ANNOTATION_VCF_FILE), true);
-		
+
 		Collection<VCFInfoHeaderLine> infoHeaders = parser.getFileHeader().getInfoHeaderLines();
 		for (VCFInfoHeaderLine vcfInfoHeaderLine : infoHeaders) {
 			AttributeType type = new AttributeType(vcfInfoHeaderLine.getID(), vcfInfoHeaderLine.getDescription());
-			if (type.getName().equals("SF")) //workaround
+			if (type.getName().equals("SF")) // workaround
 				continue;
-			if (AnnotateFromVCFSettings.ATTRIBUTE_TYPES.isEmpty() || contains(AnnotateFromVCFSettings.ATTRIBUTE_TYPES,type))
+			if (AnnotateFromVCFSettings.ATTRIBUTE_TYPES.isEmpty()
+					|| contains(AnnotateFromVCFSettings.ATTRIBUTE_TYPES, type))
 				types.add(type);
 		}
-		
 
 		ScorePrinter printer = new ScorePrinter();
 		printer.writeHeader(types);
@@ -60,36 +63,46 @@ public class AnnotateFromVCFMain {
 			for (String positionString : AnnotateFromVCFSettings.POSITIONS) {
 				String[] split = positionString.split(":");
 
-				List<Attribute> scores = getScores(ChromosomeType.fromString(split[0]), Integer.parseInt(split[1]));
+				List<Attribute> scores = getScores(ChromosomeType.fromString(split[0]), Integer.parseInt(split[1]),
+						Integer.parseInt(split[1]));
 				printer.writeScores(scores);
 			}
 		} else if (!AnnotateFromVCFSettings.POSITIONS_FILES.isEmpty()) {
-			
-				for (String path : AnnotateFromVCFSettings.POSITIONS_FILES) {
-					
-					
-					InputStream fin = new FileInputStream(path);
-					BufferedInputStream in = new BufferedInputStream(fin);
-					
-					CompressorInputStream gzIn = new CompressorStreamFactory().createCompressorInputStream(in);
-//					
-					Reader reader = new InputStreamReader(gzIn, Charset.defaultCharset());
-					BufferedReader br = new BufferedReader(reader);
-					String line;
-					while ((line = br.readLine()) != null) {
-						String[] split = line.trim().split(":");
-						List<Attribute> scores = getScores(ChromosomeType.fromString(split[0]), Integer.parseInt(split[1]));
-						printer.writeScores(scores);
-					}
-					br.close();
-					
+
+			for (String path : AnnotateFromVCFSettings.POSITIONS_FILES) {
+
+				InputStream fin = new FileInputStream(path);
+				BufferedInputStream in = new BufferedInputStream(fin);
+
+				CompressorInputStream gzIn = new CompressorStreamFactory().createCompressorInputStream(in);
+				//
+				Reader reader = new InputStreamReader(gzIn, Charset.defaultCharset());
+				BufferedReader br = new BufferedReader(reader);
+				String line;
+				while ((line = br.readLine()) != null) {
+					String[] split = line.trim().split(":");
+					List<Attribute> scores = getScores(ChromosomeType.fromString(split[0]), Integer.parseInt(split[1]),
+							Integer.parseInt(split[1]));
+					printer.writeScores(scores);
 				}
+				br.close();
+
+			}
 
 		} else { // VCF
 			for (String file : AnnotateFromVCFSettings.VCF_FILES) {
 				VCFFileReader fr = new VCFFileReader(new File(file));
 				for (VariantContext vc : fr) {
-					List<Attribute> scores = getScores(ChromosomeType.fromString(vc.getContig()), vc.getStart());
+					List<Attribute> scores;
+					if (vc.isSimpleInsertion()) {
+						scores = getScores(ChromosomeType.fromString(vc.getContig()), vc.getStart(), vc.getEnd() + 1);
+					} else if (vc.isSimpleDeletion()) {
+						scores = getScores(ChromosomeType.fromString(vc.getContig()), vc.getStart() + 1, vc.getEnd());
+					} else if (vc.isMNP()) {
+						scores = getScores(ChromosomeType.fromString(vc.getContig()), vc.getStart() + 1, vc.getEnd());
+					} else
+						scores = getScores(ChromosomeType.fromString(vc.getContig()), vc.getStart(), vc.getEnd());
+
 					printer.writeScores(scores);
 				}
 				fr.close();
@@ -107,20 +120,34 @@ public class AnnotateFromVCFMain {
 		return false;
 	}
 
-	protected static List<Attribute> getScores(ChromosomeType chr, int position) {
+	protected static List<Attribute> getScores(ChromosomeType chr, int start, int end) {
 		List<Attribute> scores = new ArrayList<>();
-		CloseableIterator<VariantContext> vcI = parser.query(chr.getName(), position, position);
+		CloseableIterator<VariantContext> vcI = parser.query(chr.getName(), start, end);
 		if (vcI.hasNext()) {
-			VariantContext vc = vcI.next();
-			for (AttributeType type : types) {
+			Map<AttributeType, List<Double>> combined = new HashMap<>();
+			while (vcI.hasNext()) {
+				VariantContext vc = vcI.next();
+				for (AttributeType type : types) {
+						if (!combined.containsKey(type))
+							combined.put(type, new ArrayList<>());
+						Double value = vc.getAttributeAsDouble(type.getName(), Double.NaN);
+						if (!Double.isNaN(value))
+							combined.get(type).add(value);
 
-				Attribute score = new Attribute(chr, position, type,
-						vc.getAttributeAsDouble(type.getName(), Double.NaN));
-				scores.add(score);
+				}
 			}
+			for (AttributeType type : types) {
+				if (combined.get(type).isEmpty())
+					scores.add(new Attribute(chr, start, type, Double.NaN));
+				else {
+					OptionalDouble value = combined.get(type).stream().mapToDouble(Double::doubleValue).average();
+					scores.add(new Attribute(chr, start, type, value.getAsDouble()));
+				}
+			}
+
 		} else {
 			for (AttributeType type : types) {
-				Attribute score = new Attribute(chr, position, type, Double.NaN);
+				Attribute score = new Attribute(chr, start, type, Double.NaN);
 				scores.add(score);
 			}
 		}

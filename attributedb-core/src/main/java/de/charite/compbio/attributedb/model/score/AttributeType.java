@@ -59,5 +59,11 @@ public class AttributeType {
 		setName(rs.getString(2));
 		setDescription(rs.getString(3));
 	}
+	
+	@Override
+	public String toString() {
+		
+		return getName() + " - "+ getDescription();
+	}
 
 }
