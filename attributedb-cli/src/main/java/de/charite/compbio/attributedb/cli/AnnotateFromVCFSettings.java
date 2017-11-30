@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.MissingOptionException;
-import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
@@ -33,7 +33,7 @@ public class AnnotateFromVCFSettings  {
 
 		setOptions(options);
 
-		CommandLineParser parser = new GnuParser();
+		CommandLineParser parser = new DefaultParser();
 		try {
 			CommandLine cmd = parser.parse(options, args);
 			if (args.length == 0) {
@@ -56,30 +56,15 @@ public class AnnotateFromVCFSettings  {
 		HelpSettings.setOptions(options);
 		// options
 
-		OptionBuilder.withLongOpt("file");
-		OptionBuilder.withDescription("VCF files to annotate");
-		OptionBuilder.hasArgs();
-		options.addOption(OptionBuilder.create("f"));
-
-		OptionBuilder.withLongOpt("name");
-		OptionBuilder.withDescription("Name(s) of the score(s).");
-		OptionBuilder.hasArgs();
-		options.addOption(OptionBuilder.create("n"));
-
-		OptionBuilder.withLongOpt("position");
-		OptionBuilder.hasArgs();
-		OptionBuilder.withDescription("Position to get score(s). Format: chr1:12123123");
-		options.addOption(OptionBuilder.create("p"));
+		options.addOption(Option.builder("f").longOpt("file").hasArgs().desc("VCF files to annotate").build());
 		
-		OptionBuilder.withLongOpt("positions-file");
-		OptionBuilder.withDescription("File with positions");
-		OptionBuilder.hasArgs();
-		options.addOption(OptionBuilder.create());
+		options.addOption(Option.builder("n").longOpt("name").hasArgs().desc("Name(s) of the score(s).").build());
+
+		options.addOption(Option.builder("p").longOpt("position").hasArgs().desc("Position to get score(s). Format: chr1:12123123").build());
 		
-		OptionBuilder.withLongOpt("annotation-vcf");
-		OptionBuilder.withDescription("VCF-File with annotations");
-		OptionBuilder.hasArgs();
-		options.addOption(OptionBuilder.create("a"));
+		options.addOption(Option.builder().longOpt("positions-file").hasArgs().desc("File with positions").build());
+		
+		options.addOption(Option.builder("a").longOpt("annotation-vcf").hasArgs().desc("VCF-File with annotations").build());
 
 	}
 
