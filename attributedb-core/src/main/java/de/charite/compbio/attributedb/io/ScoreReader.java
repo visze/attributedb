@@ -12,10 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.commons.compress.compressors.CompressorException;
-import org.apache.commons.compress.compressors.CompressorInputStream;
-import org.apache.commons.compress.compressors.CompressorStreamFactory;
-
 import de.charite.compbio.attributedb.model.score.Attribute;
 import de.charite.compbio.attributedb.model.score.AttributeType;
 
@@ -54,15 +50,15 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 		BufferedInputStream in = new BufferedInputStream(fin);
 
 		if (isGZipped(new FileInputStream(nextFile))) {
-			try {
-				CompressorInputStream gzIn = new CompressorStreamFactory().createCompressorInputStream(in);
-//				ArchiveInputStream input = new ArchiveStreamFactory().createArchiveInputStream(gzIn);
-				reader = new InputStreamReader(gzIn, Charset.defaultCharset());
-			} catch (CompressorException e) {
-				e.printStackTrace();
+//			try {
+//				CompressorInputStream gzIn = new CompressorStreamFactory().createCompressorInputStream(in);
+////				ArchiveInputStream input = new ArchiveStreamFactory().createArchiveInputStream(gzIn);
+//				reader = new InputStreamReader(gzIn, Charset.defaultCharset());
+//			} catch (CompressorException e) {
+//				e.printStackTrace();
 				GZIPInputStream gzIn = new GZIPInputStream(in);
 				reader = new InputStreamReader(gzIn, Charset.defaultCharset());
-			}
+//			}
 		} else {
 			reader = new InputStreamReader(in, Charset.defaultCharset());
 		}
