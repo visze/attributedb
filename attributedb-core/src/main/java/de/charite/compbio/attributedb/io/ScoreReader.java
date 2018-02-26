@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 
 import de.charite.compbio.attributedb.model.score.Attribute;
@@ -22,29 +23,30 @@ import de.charite.compbio.attributedb.model.score.AttributeType;
 public abstract class ScoreReader implements Iterator<Attribute> {
 
 	private AttributeType type;
-	private String nextLine;
+	private Optional<String> nextLine;
 	private BufferedReader br;
-	private Iterator<String> linesIterator;
-	private Iterator<String> fileIterator;
+	private Optional<Iterator<String>> linesIterator;
+	private Optional<Iterator<String>> fileIterator;
 
 	public ScoreReader(List<String> files, AttributeType type) throws IOException {
 		this.type = type;
-		this.fileIterator = files.iterator();
+		this.fileIterator = Optional.of(files.iterator());
+		this.nextLine = Optional.empty();
 		setNextReader();
 	}
 
 	protected void setNextReader() throws IOException {
-		if (this.fileIterator.hasNext()) {
+		if (this.fileIterator.isPresent() && this.fileIterator.get().hasNext()) {
 			Reader reader = getReader();
 			setBr(new BufferedReader(reader));
-			this.linesIterator = getBr().lines().iterator();
+			this.linesIterator = Optional.of(getBr().lines().iterator());
 		} else {
-			this.fileIterator = null;
+			this.fileIterator = Optional.empty();
 		}
 	}
 
 	private Reader getReader() throws IOException {
-		String nextFile = this.fileIterator.next();
+		String nextFile = this.fileIterator.get().next();
 		Reader reader;
 		InputStream fin = new FileInputStream(nextFile);
 		BufferedInputStream in = new BufferedInputStream(fin);
@@ -83,18 +85,18 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 
 	@Override
 	public boolean hasNext() {
-		if (this.linesIterator != null) {
-			if (this.nextLine == null && this.linesIterator.hasNext()) {
-				this.nextLine = this.linesIterator.next();
+		if (this.linesIterator.isPresent()) {
+			if (!this.nextLine.isPresent() && this.linesIterator.get().hasNext()) {
+				this.nextLine = Optional.of(this.linesIterator.get().next());
 				return hasNext();
 			}
 		}
 
-		if (this.nextLine != null) {
+		if (this.nextLine.isPresent()) {
 			return true;
 		}
 
-		if (this.fileIterator != null && this.fileIterator.hasNext()) {
+		if (this.fileIterator.isPresent() && this.fileIterator.get().hasNext()) {
 			try {
 				setNextReader();
 			} catch (IOException e) {
@@ -105,7 +107,7 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 		return false;
 	}
 
-	protected void setNextLine(String nextLine) {
+	protected void setNextLine(Optional<String> nextLine) {
 		this.nextLine = nextLine;
 	}
 
@@ -113,14 +115,14 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 		return this.type;
 	}
 
-	protected String getNextLine() {
-		if (this.nextLine != null)
-			return this.nextLine.trim();
+	protected Optional<String> getNextLine() {
+		if (this.nextLine.isPresent())
+			return Optional.of(this.nextLine.get().trim());
 		else
 			return this.nextLine;
 	}
 
-	protected Iterator<String> getLinesIterator() {
+	protected Optional<Iterator<String>> getLinesIterator() {
 		return this.linesIterator;
 	}
 
@@ -137,7 +139,7 @@ public abstract class ScoreReader implements Iterator<Attribute> {
 		throw new UnsupportedOperationException();
 	}
 
-	protected Iterator<String> getFileIterator() {
+	protected Optional<Iterator<String>> getFileIterator() {
 		return this.fileIterator;
 	}
 

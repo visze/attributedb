@@ -26,13 +26,14 @@ public class ScorePrinter implements Closeable {
 		return this.printer;
 	}
 
-	public void writeHeader(List<AttributeType> types) throws IOException {
+	public void writeHeader(List<AttributeType>... types) throws IOException {
 		List<String> header = new ArrayList<>();
 		header.add("CHR");
 		header.add("POSITION");
-		for (AttributeType type : types) {
-			header.add(type.getName());
-		}
+		for (List<AttributeType> ts : types)
+			for (AttributeType type : ts) {
+				header.add(type.getName());
+			}
 		getPrinter().printRecord(header);
 
 	}

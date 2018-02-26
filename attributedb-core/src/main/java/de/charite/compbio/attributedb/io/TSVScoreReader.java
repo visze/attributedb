@@ -27,7 +27,7 @@ public class TSVScoreReader extends ScoreReader {
 	public Attribute next() {
 		if (hasNext()) {
 			List<String> split = new ArrayList<>();
-			for (String string : Splitter.on('\t').trimResults().omitEmptyStrings().split(getNextLine())) {
+			for (String string : Splitter.on('\t').trimResults().omitEmptyStrings().split(getNextLine().get())) {
 				split.add(string);
 			}
 			Attribute attribute = null;

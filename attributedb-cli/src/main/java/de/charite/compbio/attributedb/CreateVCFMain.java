@@ -126,7 +126,6 @@ public class CreateVCFMain {
 		writer.writeHeader(header);
 
 		List<Attribute> nextScores = new ArrayList<Attribute>();
-		int i = 0;
 		while (hasNext()) {
 			nextScores = nextScores();
 			Allele ref = Allele.create("N", true);
@@ -140,7 +139,6 @@ public class CreateVCFMain {
 			}
 			VariantContext vc = vcBuilder.make();
 			writer.add(vc);
-			i++;
 		}
 		writer.close();
 		System.exit(0);

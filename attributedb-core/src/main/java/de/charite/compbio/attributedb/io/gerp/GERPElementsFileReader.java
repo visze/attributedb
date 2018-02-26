@@ -2,6 +2,7 @@ package de.charite.compbio.attributedb.io.gerp;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,18 +44,18 @@ public abstract class GERPElementsFileReader extends ScoreReader {
 	public boolean hasNext() {
 		if (getLinesIterator() != null) {
 
-			if (getNextLine() == null && getLinesIterator().hasNext()) {
-				setNextLine(getLinesIterator().next());
+			if (!getNextLine().isPresent() && getLinesIterator().get().hasNext()) {
+				setNextLine(Optional.of(getLinesIterator().get().next()));
 				checkHeader();
 				return hasNext();
 			}
 		}
 
-		if (getNextLine() != null) {
+		if (getNextLine().isPresent()) {
 			return true;
 		}
 
-		if (getFileIterator() != null && getFileIterator().hasNext()) {
+		if (getFileIterator().isPresent() && getFileIterator().get().hasNext()) {
 			try {
 				setNextReader();
 			} catch (IOException e) {
@@ -67,19 +68,19 @@ public abstract class GERPElementsFileReader extends ScoreReader {
 
 	private void checkHeader() {
 		Pattern p = Pattern.compile("^hg19_(chr([0-9]+|X|Y|M))_elems.*");
-		Matcher m = p.matcher(getNextLine());
+		Matcher m = p.matcher(getNextLine().get());
 		if (m.matches()) {
 			this.chr = m.group(2);
-			setNextLine(null);
+			setNextLine(Optional.empty());
 		}
 	}
 
 	@Override
 	public Attribute next() {
 		if (hasNext()) {
-			String[] split = getNextLine().split("\t");
+			String[] split = getNextLine().get().split("\t");
 			if (split.length < 2) {
-				setNextLine(null);
+				setNextLine(Optional.empty());
 				this.position = 0;
 				return null;
 			}
@@ -92,7 +93,7 @@ public abstract class GERPElementsFileReader extends ScoreReader {
 				this.position++;
 				return attribute;
 			} else {
-				setNextLine(null);
+				setNextLine(Optional.empty());
 				this.position = 0;
 			}
 		}

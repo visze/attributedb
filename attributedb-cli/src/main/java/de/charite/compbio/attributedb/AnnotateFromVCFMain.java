@@ -11,14 +11,15 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.OptionalDouble;
 
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
+
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.MultimapBuilder;
 
 import de.charite.compbio.attributedb.cli.AnnotateFromVCFSettings;
 import de.charite.compbio.attributedb.io.ScorePrinter;
@@ -37,29 +38,23 @@ import htsjdk.variant.vcf.VCFInfoHeaderLine;
 public class AnnotateFromVCFMain {
 
 	private static List<AttributeType> types;
+	private static List<AttributeType> originalTypes;
 	private static VCFFileReader parser;
 
 	public static void main(String[] args) throws IOException, CompressorException {
 		AnnotateFromVCFSettings.parseArgs(args);
 
-		types = new ArrayList<>();
+		
 
 		parser = new VCFFileReader(new File(AnnotateFromVCFSettings.ANNOTATION_VCF_FILE), true);
 
-		Collection<VCFInfoHeaderLine> infoHeaders = parser.getFileHeader().getInfoHeaderLines();
-		for (VCFInfoHeaderLine vcfInfoHeaderLine : infoHeaders) {
-			AttributeType type = new AttributeType(vcfInfoHeaderLine.getID(), vcfInfoHeaderLine.getDescription());
-			if (type.getName().equals("SF")) // workaround
-				continue;
-			if (AnnotateFromVCFSettings.ATTRIBUTE_TYPES.isEmpty()
-					|| contains(AnnotateFromVCFSettings.ATTRIBUTE_TYPES, type))
-				types.add(type);
-		}
+		types = collectTypesFromHeader(parser);
 
 		ScorePrinter printer = new ScorePrinter();
-		printer.writeHeader(types);
+		
 
 		if (!AnnotateFromVCFSettings.POSITIONS.isEmpty()) {
+			printer.writeHeader(types);
 			for (String positionString : AnnotateFromVCFSettings.POSITIONS) {
 				String[] split = positionString.split(":");
 
@@ -68,6 +63,7 @@ public class AnnotateFromVCFMain {
 				printer.writeScores(scores);
 			}
 		} else if (!AnnotateFromVCFSettings.POSITIONS_FILES.isEmpty()) {
+			printer.writeHeader(types);
 
 			for (String path : AnnotateFromVCFSettings.POSITIONS_FILES) {
 
@@ -90,6 +86,12 @@ public class AnnotateFromVCFMain {
 			}
 
 		} else { // VCF
+			originalTypes = new ArrayList<>();
+			for (String file : AnnotateFromVCFSettings.VCF_FILES) {
+				VCFFileReader fr = new VCFFileReader(new File(file));
+				originalTypes.addAll(collectTypesFromHeader(fr));
+			}
+			printer.writeHeader(types,originalTypes);
 			for (String file : AnnotateFromVCFSettings.VCF_FILES) {
 				VCFFileReader fr = new VCFFileReader(new File(file));
 				for (VariantContext vc : fr) {
@@ -103,6 +105,9 @@ public class AnnotateFromVCFMain {
 					} else
 						scores = getScores(ChromosomeType.fromString(vc.getContig()), vc.getStart(), vc.getEnd());
 
+					List<Attribute> originalScores = getAverageScores(getAttributeScores(vc, originalTypes),
+							ChromosomeType.fromString(vc.getContig()), vc.getStart(), originalTypes);
+					scores.addAll(originalScores);
 					printer.writeScores(scores);
 				}
 				fr.close();
@@ -110,6 +115,20 @@ public class AnnotateFromVCFMain {
 		}
 		printer.close();
 		System.exit(0);
+	}
+
+	private static List<AttributeType> collectTypesFromHeader(VCFFileReader parser) {
+		List<AttributeType> types = new ArrayList<>();
+		Collection<VCFInfoHeaderLine> infoHeaders = parser.getFileHeader().getInfoHeaderLines();
+		for (VCFInfoHeaderLine vcfInfoHeaderLine : infoHeaders) {
+			AttributeType type = new AttributeType(vcfInfoHeaderLine.getID(), vcfInfoHeaderLine.getDescription());
+			if (type.getName().equals("SF")) // workaround
+				continue;
+			if (AnnotateFromVCFSettings.ATTRIBUTE_TYPES.isEmpty()
+					|| contains(AnnotateFromVCFSettings.ATTRIBUTE_TYPES, type))
+				types.add(type);
+		}
+		return types;
 	}
 
 	private static boolean contains(List<AttributeType> aTTRIBUTE_TYPES, AttributeType type) {
@@ -124,31 +143,42 @@ public class AnnotateFromVCFMain {
 		List<Attribute> scores = new ArrayList<>();
 		CloseableIterator<VariantContext> vcI = parser.query(chr.getName(), start, end);
 		if (vcI.hasNext()) {
-			Map<AttributeType, List<Double>> combined = new HashMap<>();
+			ListMultimap<AttributeType, Double> combined = MultimapBuilder.hashKeys().arrayListValues().build();
 			while (vcI.hasNext()) {
 				VariantContext vc = vcI.next();
-				for (AttributeType type : types) {
-						if (!combined.containsKey(type))
-							combined.put(type, new ArrayList<>());
-						Double value = vc.getAttributeAsDouble(type.getName(), Double.NaN);
-						if (!Double.isNaN(value))
-							combined.get(type).add(value);
-
-				}
+				combined.putAll(getAttributeScores(vc, types));
 			}
-			for (AttributeType type : types) {
-				if (combined.get(type).isEmpty())
-					scores.add(new Attribute(chr, start, type, Double.NaN));
-				else {
-					OptionalDouble value = combined.get(type).stream().mapToDouble(Double::doubleValue).average();
-					scores.add(new Attribute(chr, start, type, value.getAsDouble()));
-				}
-			}
+			scores.addAll(getAverageScores(combined, chr, start, types));
 
 		} else {
 			for (AttributeType type : types) {
 				Attribute score = new Attribute(chr, start, type, Double.NaN);
 				scores.add(score);
+			}
+		}
+		return scores;
+	}
+
+	private static ListMultimap<AttributeType, Double> getAttributeScores(VariantContext vc,
+			List<AttributeType> types) {
+		ListMultimap<AttributeType, Double> result = MultimapBuilder.hashKeys().arrayListValues().build();
+		for (AttributeType type : types) {
+			Double value = vc.getAttributeAsDouble(type.getName(), Double.NaN);
+			if (!Double.isNaN(value))
+				result.get(type).add(value);
+		}
+		return result;
+	}
+
+	private static List<Attribute> getAverageScores(ListMultimap<AttributeType, Double> results, ChromosomeType chr,
+			int start, List<AttributeType> types) {
+		List<Attribute> scores = new ArrayList<>();
+		for (AttributeType type : types) {
+			if (!results.containsKey(type))
+				scores.add(new Attribute(chr, start, type, Double.NaN));
+			else {
+				OptionalDouble value = results.get(type).stream().mapToDouble(Double::doubleValue).average();
+				scores.add(new Attribute(chr, start, type, value.getAsDouble()));
 			}
 		}
 		return scores;

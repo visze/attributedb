@@ -1,8 +1,8 @@
 package de.charite.compbio.attributedb.io;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,20 +28,20 @@ public class BEDScoreReader extends ScoreReader {
 
 	@Override
 	public boolean hasNext() {
-		if (getLinesIterator() != null) {
+		if (getLinesIterator().isPresent()) {
 
-			if (getNextLine() == null && getLinesIterator().hasNext()) {
-				setNextLine(getLinesIterator().next());
+			if (!getNextLine().isPresent() && getLinesIterator().get().hasNext()) {
+				setNextLine(Optional.of(getLinesIterator().get().next()));
 				checkHeader();
 				return hasNext();
 			}
 		}
 
-		if (getNextLine() != null) {
+		if (getNextLine().isPresent()) {
 			return true;
 		}
 
-		if (getFileIterator() != null && getFileIterator().hasNext()) {
+		if (getFileIterator().isPresent() && getFileIterator().get().hasNext()) {
 			try {
 				setNextReader();
 			} catch (IOException e) {
@@ -54,28 +54,29 @@ public class BEDScoreReader extends ScoreReader {
 
 	private void checkHeader() {
 		Pattern p = Pattern.compile("^#.*$");
-		Matcher m = p.matcher(getNextLine());
+		Matcher m = p.matcher(getNextLine().get());
 		if (m.matches())
-			setNextLine(null);
+			setNextLine(Optional.empty());
 	}
 
 	@Override
 	public Attribute next() {
 		if (hasNext()) {
-			List<String> split = new ArrayList<>();
-			for (String string : Splitter.on('\t').trimResults().omitEmptyStrings().split(getNextLine())) {
-				split.add(string);
-			}
+			List<String> split = Splitter.on('\t').trimResults().omitEmptyStrings().splitToList(getNextLine().get());
 			ChromosomeType chr = ChromosomeType.fromString(split.get(0));
-			int start = Integer.parseInt(split.get(1))+1;
-			int end = Integer.parseInt(split.get(2))+1;
-			double value = Double.parseDouble(split.get(getScoreColumn()-1));
+			if (chr == null) {
+				setNextLine(Optional.empty());
+				return null;
+			}
+			int start = Integer.parseInt(split.get(1)) + 1;
+			int end = Integer.parseInt(split.get(2)) + 1;
+			double value = Double.parseDouble(split.get(getScoreColumn() - 1));
 			if (end > start + this.position) {
 				Attribute attribute = new Attribute(chr, start + this.position, getType(), value);
 				this.position++;
 				return attribute;
 			} else {
-				setNextLine(null);
+				setNextLine(Optional.empty());
 				this.position = 0;
 				if (hasNext())
 					return next();
