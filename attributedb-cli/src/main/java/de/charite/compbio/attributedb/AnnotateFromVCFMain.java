@@ -91,24 +91,24 @@ public class AnnotateFromVCFMain {
 				VCFFileReader fr = new VCFFileReader(new File(file));
 				originalTypes.addAll(collectTypesFromHeader(fr));
 			}
-			printer.writeHeader(types,originalTypes);
+			printer.writeHeader(true, types,originalTypes);
 			for (String file : AnnotateFromVCFSettings.VCF_FILES) {
 				VCFFileReader fr = new VCFFileReader(new File(file));
 				for (VariantContext vc : fr) {
 					List<Attribute> scores;
 					if (vc.isSimpleInsertion()) {
-						scores = getScores(ChromosomeType.fromString(vc.getContig()), vc.getStart(), vc.getEnd() + 1);
+						scores = getScores(ChromosomeType.fromString(vc.getContig()), vc.getStart(), vc.getEnd() + 1, vc.getID());
 					} else if (vc.isSimpleDeletion()) {
-						scores = getScores(ChromosomeType.fromString(vc.getContig()), vc.getStart() + 1, vc.getEnd());
+						scores = getScores(ChromosomeType.fromString(vc.getContig()), vc.getStart() + 1, vc.getEnd(), vc.getID());
 					} else if (vc.isMNP()) {
-						scores = getScores(ChromosomeType.fromString(vc.getContig()), vc.getStart() + 1, vc.getEnd());
+						scores = getScores(ChromosomeType.fromString(vc.getContig()), vc.getStart() + 1, vc.getEnd(), vc.getID());
 					} else
-						scores = getScores(ChromosomeType.fromString(vc.getContig()), vc.getStart(), vc.getEnd());
+						scores = getScores(ChromosomeType.fromString(vc.getContig()), vc.getStart(), vc.getEnd(), vc.getID());
 
 					List<Attribute> originalScores = getAverageScores(getAttributeScores(vc, originalTypes),
 							ChromosomeType.fromString(vc.getContig()), vc.getStart(), originalTypes);
 					scores.addAll(originalScores);
-					printer.writeScores(scores);
+					printer.writeScoresWithId(scores);
 				}
 				fr.close();
 			}
@@ -158,6 +158,26 @@ public class AnnotateFromVCFMain {
 		}
 		return scores;
 	}
+	
+	protected static List<Attribute> getScores(ChromosomeType chr, int start, int end, String id) {
+		List<Attribute> scores = new ArrayList<>();
+		CloseableIterator<VariantContext> vcI = parser.query(chr.getName(), start, end);
+		if (vcI.hasNext()) {
+			ListMultimap<AttributeType, Double> combined = MultimapBuilder.hashKeys().arrayListValues().build();
+			while (vcI.hasNext()) {
+				VariantContext vc = vcI.next();
+				combined.putAll(getAttributeScores(vc, types));
+			}
+			scores.addAll(getAverageScores(combined, chr, start, id, types));
+
+		} else {
+			for (AttributeType type : types) {
+				Attribute score = new Attribute(chr, start, id, type, Double.NaN);
+				scores.add(score);
+			}
+		}
+		return scores;
+	}
 
 	private static ListMultimap<AttributeType, Double> getAttributeScores(VariantContext vc,
 			List<AttributeType> types) {
@@ -179,6 +199,20 @@ public class AnnotateFromVCFMain {
 			else {
 				OptionalDouble value = results.get(type).stream().mapToDouble(Double::doubleValue).average();
 				scores.add(new Attribute(chr, start, type, value.getAsDouble()));
+			}
+		}
+		return scores;
+	}
+	
+	private static List<Attribute> getAverageScores(ListMultimap<AttributeType, Double> results, ChromosomeType chr,
+			int start, String id, List<AttributeType> types) {
+		List<Attribute> scores = new ArrayList<>();
+		for (AttributeType type : types) {
+			if (!results.containsKey(type))
+				scores.add(new Attribute(chr, start, id, type, Double.NaN));
+			else {
+				OptionalDouble value = results.get(type).stream().mapToDouble(Double::doubleValue).average();
+				scores.add(new Attribute(chr, start, id, type, value.getAsDouble()));
 			}
 		}
 		return scores;

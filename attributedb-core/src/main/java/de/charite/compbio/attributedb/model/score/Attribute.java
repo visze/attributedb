@@ -22,6 +22,12 @@ public class Attribute extends Position {
 		this.type = type;
 		this.value = value;
 	}
+	
+	public Attribute(ChromosomeType chr, int position, String id, AttributeType type, double value) {
+		super(chr, position, id);
+		this.type = type;
+		this.value = value;
+	}
 
 	public void setPrepareStatement(PreparedStatement ps) throws SQLException {
 		ps.setLong(1, getDatabasePosition());

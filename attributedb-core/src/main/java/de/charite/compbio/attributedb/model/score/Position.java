@@ -1,5 +1,7 @@
 package de.charite.compbio.attributedb.model.score;
 
+import java.util.Optional;
+
 /**
  * Position in a genome with chromosome and position.
  * 
@@ -21,6 +23,10 @@ public class Position {
 	 */
 	private int position;
 	/**
+	 * Id of that position
+	 */
+	private Optional<String> id;
+	/**
 	 * A shift for the database per Chromosome (ordered chr1, chr2,...chrX,chrY,chrM).
 	 */
 	private static final int SHIFT = 250000000;
@@ -36,6 +42,13 @@ public class Position {
 	public Position(ChromosomeType chr, int position) {
 		this.chr = chr;
 		this.position = position;
+		this.id = Optional.empty();
+	}
+	
+	public Position(ChromosomeType chr, int position, String id) {
+		this.chr = chr;
+		this.position = position;
+		this.id = Optional.of(id);
 	}
 
 	/**
@@ -69,6 +82,10 @@ public class Position {
 	 */
 	public int getPosition() {
 		return this.position;
+	}
+	
+	public Optional<String> getId() {
+		return id;
 	}
 
 }
