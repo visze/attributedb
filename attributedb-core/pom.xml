@@ -44,12 +44,12 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>23.5-jre</version>
+			<version>[30.0-jre,)</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
-			<version>1.15</version>
+			<version>[1.21,)</version>
 		</dependency>
 	</dependencies>
 
